@@ -5,6 +5,7 @@ import sys
 from const import *
 from game import *
 from board import *
+from login import *
 
 class Main:
 
@@ -13,30 +14,25 @@ class Main:
         self.screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
         pygame.display.set_caption('Chess')
         self.game = Game()
+        self.login = Login()
 
     def mainloop(self):
 
         game = self.game
+        login = self.login
         screen = self.screen
         board = initialise_board()
         print(board)
         while True:
-            game.show_bg(screen)
+            login.show_screen(screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouseDown = mouse_position()
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    mouseUp = mouse_position()
-                    print("HERE")
-                    print(mouseDown)
-                    print(mouseUp)
-                    print("DONE")
-                    make_move(mouseDown,mouseUp,board)
-                    print(board)
-            #mouse_position()
+                    # Check if the login button was clicked
+                    if login_button.collidepoint(pygame.mouse.get_pos()):
+                        print("Login button clicked!")
             pygame.display.update()
 
 
