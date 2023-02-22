@@ -1,7 +1,18 @@
 import pygame
 from const import *
+
+pygame.font.init()
+
 # Create the login button
 login_button = pygame.Rect(WIDTH // 4, HEIGHT // 1.5, WIDTH // 2, 32)
+# Create the font for the username and password fields
+font = font = pygame.font.SysFont("Arial", 32)
+
+# Create the username and password fields
+username_field = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
+password_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
+
+
 
 class Login:
     
@@ -13,13 +24,6 @@ class Login:
     def show_screen(self, surface):
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
-        # Create the font for the username and password fields
-        font = pygame.font.Font(None, 32)
-
-        # Create the username and password fields
-        username_field = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
-        password_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
-
 
         # Clear the surface
         surface.fill(WHITE)

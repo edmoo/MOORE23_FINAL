@@ -17,7 +17,8 @@ class Main:
         self.login = Login()
 
     def mainloop(self):
-
+        username = ""
+        password = ""
         game = self.game
         login = self.login
         screen = self.screen
@@ -32,7 +33,24 @@ class Main:
                 elif event.type == pygame.MOUSEBUTTONUP:
                     # Check if the login button was clicked
                     if login_button.collidepoint(pygame.mouse.get_pos()):
-                        print("Login button clicked!")
+                        print("Username: "+username)
+                        print("Password: "+password)
+                elif event.type == pygame.KEYDOWN:
+                    # Update the text of the username or password field
+                    if username_field.collidepoint(pygame.mouse.get_pos()):
+                        print("MMMM")
+                        if event.key == pygame.K_BACKSPACE:
+                            username = username[:-1]
+                        else:
+                            username += event.unicode
+                    elif password_field.collidepoint(pygame.mouse.get_pos()):
+                        print("HAAA")
+                        if event.key == pygame.K_BACKSPACE:
+                            password = password
+                        else:
+                            password += event.unicode
+
+
             pygame.display.update()
 
 
