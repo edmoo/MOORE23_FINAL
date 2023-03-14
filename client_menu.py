@@ -11,12 +11,12 @@ font = font = pygame.font.SysFont("Arial", 32)
 base_font = pygame.font.Font(None, 32)
 
 # Create the username and password fields
-host_field = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
-start_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
+client_field = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
+join_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
 
 
 
-class HostMenu:
+class ClientMenu:
 
     def __init__(self):
         pass
@@ -30,14 +30,14 @@ class HostMenu:
         surface.fill(WHITE)
 
         # Draw the username field
-        pygame.draw.rect(surface, BLACK, host_field, 2)
-        host_text = font.render("REN:", True, BLACK)
-        surface.blit(host_text, (WIDTH // 4 - host_text.get_width() - 16, HEIGHT // 3 + 8))
+        pygame.draw.rect(surface, BLACK, client_field, 2)
+        client_text = font.render("IP:", True, BLACK)
+        surface.blit(client_text, (WIDTH // 4 - client_text.get_width() - 16, HEIGHT // 3 + 8))
         
         # Draw the password field
-        pygame.draw.rect(surface, BLACK, start_field, 2)
-        start_text = font.render("Start", True, BLACK)
-        surface.blit(start_text, (WIDTH // 4 - start_text.get_width() // 2, HEIGHT // 2 + 8))
+        pygame.draw.rect(surface, BLACK, join_field, 2)
+        join_text = font.render("Join", True, BLACK)
+        surface.blit(join_text, (WIDTH // 4 - join_text.get_width() // 2, HEIGHT // 2 + 8))
         
         # Draw the login button
         pygame.draw.rect(surface, BLACK, back_button, 2)

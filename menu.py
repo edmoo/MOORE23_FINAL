@@ -12,7 +12,7 @@ base_font = pygame.font.Font(None, 32)
 
 # Create the username and password fields
 quit_field = pygame.Rect(WIDTH // 4, HEIGHT // 1.5, WIDTH // 2, 32)
-password_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
+join_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
 
 
 
@@ -36,7 +36,7 @@ class Menu:
         surface.blit(host_text, (WIDTH // 4 - host_text.get_width() // 2, HEIGHT // 3 + 8))
         
         # Draw the password field
-        pygame.draw.rect(surface, BLACK, password_field, 2)
+        pygame.draw.rect(surface, BLACK, join_field, 2)
         password_text = font.render("Join", True, BLACK)
         surface.blit(password_text, (WIDTH // 4 - password_text.get_width() // 2, HEIGHT // 2 + 8))
         
