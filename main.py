@@ -205,8 +205,8 @@ class Main:
 
             elif(curr_window == "clientGame"):
                 game.show_bg(screen,board)
-
                 for event in pygame.event.get():
+                    print("events")
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
                             conn.close()
@@ -224,7 +224,7 @@ class Main:
                                 s.send(moveArr.encode())
                                 team_turn = "w"
                                 print(board)
-
+                print("CLIENT GAME WAHOO")
                 if(team_turn == "w"):
                     # receive data in non-blocking mode
                     ready_to_read, _, _ = select.select([s], [], [], 0.5)
