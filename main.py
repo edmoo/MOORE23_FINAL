@@ -124,7 +124,7 @@ class Main:
                             except NameError:
                                 print("No Client")
             elif(curr_window == "host_game"):
-                game.show_bg(screen)
+                game.show_bg(screen,board)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
@@ -204,7 +204,7 @@ class Main:
                     print("No data received")
 
             elif(curr_window == "clientGame"):
-                game.show_bg(screen)
+                game.show_bg(screen,board)
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
