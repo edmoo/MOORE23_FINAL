@@ -30,7 +30,6 @@ bishop_white = pygame.transform.scale(bishop_white, (SQSIZE, SQSIZE))
 queen_white = pygame.transform.scale(queen_white, (SQSIZE, SQSIZE))
 king_white = pygame.transform.scale(king_white, (SQSIZE, SQSIZE))
 
-
 piece_color = (255, 255, 255)
 class Game:
     
@@ -38,7 +37,7 @@ class Game:
             pass
     #show methods
 
-    def show_bg(self, surface, board):
+    def show_bg(self, surface, brd):
         for row in range(ROWS):
             for col in range (COLS):
                 if(row+col) % 2 == 0:
@@ -48,13 +47,18 @@ class Game:
                 
                 rect = (col*SQSIZE, row*SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface,color,rect)
-        boardMat = board_toMatrix(board.fen())
+        brdMat = board_toMatrix(brd.fen())
         for row in range(8):
             for col in range(8):
                 x = col * SQSIZE
                 y = row * SQSIZE
-                piece = boardMat[row][col]
+                #gets position according to python chess positions
+                brdPos = ((7-row)*8)+col
+                piece = brdMat[row][col]
                 if piece == "p":
+                    print("\nx = "+str(col))
+                    print("y = "+str(row))
+                    print("test = "+str(((7-row)*8)+col))
                     surface.blit(pawn_black, (x, y))
                 elif piece == "r":
                     surface.blit(rook_black, (x, y))
@@ -78,7 +82,11 @@ class Game:
                     surface.blit(queen_white, (x, y))
                 elif piece == "K":
                     surface.blit(king_white, (x, y))
-    
+
+
+
+
+
 def mouse_position():
     mouse_pos = pygame.Vector2(pygame.mouse.get_pos()) - BOARD_ORIGIN
     if(mouse_pos[0] == 0):mouse_pos[0] = 1

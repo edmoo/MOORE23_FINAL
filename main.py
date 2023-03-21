@@ -132,16 +132,21 @@ class Main:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
+                        print("mouse down :oO")
                         move_start = mouse_position()
                     elif event.type == pygame.MOUSEBUTTONUP:
+                        print("mouse up")
                         move_end = mouse_position()
                         if(team_turn == "w"):
+                            print("team is w")
                             #if move valid and gets made
                             if(make_move(move_start,move_end,board)):
+                                print("valid move")
                                 moveArr = str(move_start)+","+str(move_end)
                                 c.send(moveArr.encode())
                                 team_turn = "b"
-                                print(board)
+                            if(board.outcome()):
+                                print("checkmate") 
                 if(team_turn=="b"):
                     #RECIEVE MOVE FROM CLIENT
                     ready_to_read, _, _ = select.select([c], [], [], 0.5)
@@ -157,6 +162,8 @@ class Main:
                         make_move(numbers[0],numbers[1],board)
                         print(board)
                         team_turn = "w"
+                    if(board.outcome()):
+                        print("checkmate")
 
             elif(curr_window == "joinMenu"):
                 ClientMenu.show_screen(self,screen)
@@ -206,7 +213,6 @@ class Main:
             elif(curr_window == "clientGame"):
                 game.show_bg(screen,board)
                 for event in pygame.event.get():
-                    print("events")
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
                             conn.close()
@@ -218,13 +224,13 @@ class Main:
                         move_end = mouse_position()
                         if(team_turn == "b"):
                             if(make_move(move_start,move_end,board)):
-                                print("if...")
                                 moveArr = str(move_start)+","+str(move_end)
                                 #SEND MOVE ARR TO SERVER!!!
                                 s.send(moveArr.encode())
                                 team_turn = "w"
+                                if(board.outcome()):
+                                    print("checkmate")
                                 print(board)
-                print("CLIENT GAME WAHOO")
                 if(team_turn == "w"):
                     # receive data in non-blocking mode
                     ready_to_read, _, _ = select.select([s], [], [], 0.5)
@@ -240,6 +246,9 @@ class Main:
                         make_move(numbers[0],numbers[1],board)
                         team_turn = "b"
                         print(board)
+
+                    if(board.outcome()):
+                        print("checkmate")
             
             pygame.display.update()
 

@@ -36,8 +36,12 @@ def board_toMatrix(fenCode):
 
 def make_move(start,end,board):
     move = chess.Move(start,end)
+    promoMove = chess.Move(from_square=start,to_square=end,promotion=chess.QUEEN)
     if move in board.legal_moves:
         board.push(move)
+        return board
+    elif promoMove in board.legal_moves:
+        board.push(promoMove)
         return board
     else:
         return 0
