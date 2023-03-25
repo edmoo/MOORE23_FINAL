@@ -29,25 +29,42 @@ knight_white = pygame.transform.scale(knight_white, (SQSIZE, SQSIZE))
 bishop_white = pygame.transform.scale(bishop_white, (SQSIZE, SQSIZE))
 queen_white = pygame.transform.scale(queen_white, (SQSIZE, SQSIZE))
 king_white = pygame.transform.scale(king_white, (SQSIZE, SQSIZE))
-
 piece_color = (255, 255, 255)
 class Game:
     
     def __init__(self):
-            pass
+            self.dragInit = True
+            self.dragPiece = None
+            self.valid_moves = None
     #show methods
 
-    def show_bg(self, surface, brd):
+    def show_bg(self, surface, brd, dragging):
+        brdMat = board_toMatrix(brd.fen())
         for row in range(ROWS):
             for col in range (COLS):
                 if(row+col) % 2 == 0:
                     color = (234, 235, 200) #light
                 else:
                     color = (119, 154, 88) #dark
-                
+                #gets position according to python chess positions
+                brdPos = ((7-row)*8)+col
+                targetPiece = None
+                if(dragging):
+                    if(self.dragInit):
+                        self.dragPiece = mouse_position()
+                        self.dragInit = False
+                        targetPiece = brd.piece_at(self.dragPiece)
+                        if targetPiece is not None:
+                            self.valid_moves = [move.to_square for move in brd.legal_moves if move.from_square == self.dragPiece]
+                    if(brdPos in self.valid_moves):
+                        #green
+                        color = (100,240,120)
+                else:
+                    self.dragInit = True
+                    self.valid_moves = []
+
                 rect = (col*SQSIZE, row*SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface,color,rect)
-        brdMat = board_toMatrix(brd.fen())
         for row in range(8):
             for col in range(8):
                 x = col * SQSIZE
@@ -55,32 +72,87 @@ class Game:
                 #gets position according to python chess positions
                 brdPos = ((7-row)*8)+col
                 piece = brdMat[row][col]
+                if(dragging):
+                    if(brdPos == self.dragPiece):
+                        mouse_pos = pygame.mouse.get_pos()
+                        image_pos = (mouse_pos[0] - SQSIZE / 2, mouse_pos[1] - SQSIZE / 2)
+                        if(brd.turn == chess.BLACK):
+                            if piece == "p":
+                                pawn_black.set_alpha(128)
+                                surface.blit(pawn_black, image_pos)
+                            elif piece == "r":
+                                rook_black.set_alpha(128)
+                                surface.blit(rook_black, image_pos)
+                            elif piece == "n":
+                                knight_black.set_alpha(128)
+                                surface.blit(knight_black, image_pos)
+                            elif piece == "b":
+                                bishop_black.set_alpha(128)
+                                surface.blit(bishop_black, image_pos)
+                            elif piece == "q":
+                                queen_black.set_alpha(128)
+                                surface.blit(queen_black, image_pos)
+                            elif piece == "k":
+                                king_black.set_alpha(128)
+                                surface.blit(king_black, image_pos)
+                        else:
+                            if piece == "P":
+                                pawn_white.set_alpha(128)
+                                surface.blit(pawn_white,image_pos)
+                            elif piece == "R":
+                                rook_white.set_alpha(128)
+                                surface.blit(rook_white, image_pos)
+                            elif piece == "N":
+                                knight_white.set_alpha(128)
+                                surface.blit(knight_white, image_pos)
+                            elif piece == "B":
+                                bishop_white.set_alpha(128)
+                                surface.blit(bishop_white,image_pos)
+                            elif piece == "Q":
+                                queen_white.set_alpha(128)
+                                surface.blit(queen_white,image_pos)
+                            elif piece == "K":
+                                king_white.set_alpha(128)
+                                surface.blit(king_white,image_pos)
+                else:
+                    self.dragInit = True
+
+                    
                 if piece == "p":
-                    print("\nx = "+str(col))
-                    print("y = "+str(row))
-                    print("test = "+str(((7-row)*8)+col))
+                    pawn_black.set_alpha(256)
                     surface.blit(pawn_black, (x, y))
                 elif piece == "r":
+                    rook_black.set_alpha(256)
                     surface.blit(rook_black, (x, y))
                 elif piece == "n":
+                    knight_black.set_alpha(256)
                     surface.blit(knight_black, (x, y))
                 elif piece == "b":
+                    bishop_black.set_alpha(256)
                     surface.blit(bishop_black, (x, y))
                 elif piece == "q":
+                    queen_black.set_alpha(256)
                     surface.blit(queen_black, (x, y))
                 elif piece == "k":
+                    king_black.set_alpha(256)
                     surface.blit(king_black, (x, y))
                 elif piece == "P":
+                    pawn_white.set_alpha(256)
                     surface.blit(pawn_white,(x,y))
                 elif piece == "R":
+                    rook_white.set_alpha(256)
                     surface.blit(rook_white, (x, y))
                 elif piece == "N":
+                    knight_white.set_alpha(256)
                     surface.blit(knight_white, (x, y))
                 elif piece == "B":
+                    bishop_white.set_alpha(256)
                     surface.blit(bishop_white, (x, y))
                 elif piece == "Q":
+                    queen_white.set_alpha(256)
                     surface.blit(queen_white, (x, y))
                 elif piece == "K":
+                    king_white.set_alpha(256)
                     surface.blit(king_white, (x, y))
 
 

@@ -37,6 +37,7 @@ class Main:
         team_turn = "w"
         c = None
         s = None
+        dragging = False
         while True:
             if(curr_window=="login"):
                 login.show_screen(screen,username,password)
@@ -124,7 +125,7 @@ class Main:
                             except NameError:
                                 print("No Client")
             elif(curr_window == "host_game"):
-                game.show_bg(screen,board)
+                game.show_bg(screen,board,dragging)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
@@ -132,16 +133,14 @@ class Main:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        print("mouse down :oO")
+                        dragging = True
                         move_start = mouse_position()
                     elif event.type == pygame.MOUSEBUTTONUP:
-                        print("mouse up")
+                        dragging = False
                         move_end = mouse_position()
                         if(team_turn == "w"):
-                            print("team is w")
                             #if move valid and gets made
                             if(make_move(move_start,move_end,board)):
-                                print("valid move")
                                 moveArr = str(move_start)+","+str(move_end)
                                 c.send(moveArr.encode())
                                 team_turn = "b"
@@ -211,7 +210,7 @@ class Main:
                     print("No data received")
 
             elif(curr_window == "clientGame"):
-                game.show_bg(screen,board)
+                game.show_bg(screen,board,dragging)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
@@ -219,8 +218,10 @@ class Main:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
+                        dragging = True
                         move_start = mouse_position()
                     elif event.type == pygame.MOUSEBUTTONUP:
+                        dragging = False
                         move_end = mouse_position()
                         if(team_turn == "b"):
                             if(make_move(move_start,move_end,board)):
