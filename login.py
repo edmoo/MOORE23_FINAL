@@ -50,6 +50,7 @@ class Login:
         pygame.draw.rect(surface, BLACK, login_button, 2)
         login_text = font.render("Login", True, BLACK)
         surface.blit(login_text, (WIDTH // 2 - login_text.get_width() // 2, HEIGHT // 1.5 + 8))
+        
         surface.blit(text_surface, (username_field.x+5, username_field.y+5))
         surface.blit(pass_surface, (password_field.x+5, password_field.y+5))
 

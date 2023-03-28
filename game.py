@@ -30,22 +30,37 @@ bishop_white = pygame.transform.scale(bishop_white, (SQSIZE, SQSIZE))
 queen_white = pygame.transform.scale(queen_white, (SQSIZE, SQSIZE))
 king_white = pygame.transform.scale(king_white, (SQSIZE, SQSIZE))
 piece_color = (255, 255, 255)
+
+pygame.font.init()
+
+#create the font
+font = font = pygame.font.SysFont("Arial", 32)
+base_font = pygame.font.Font(None, 32)
+surr_text = font.render("Surrender", True, (0,0,0))
+button_x = GAMEWIDTH + ((WIDTH - GAMEWIDTH) // 2) - (surr_text.get_width() // 2)
+button_y = HEIGHT // 1.5 + 8
+surr_rect = surr_text.get_rect()
+surr_rect.x = button_x
+surr_rect.y = button_y
 class Game:
     
     def __init__(self):
             self.dragInit = True
             self.dragPiece = None
             self.valid_moves = None
+    
     #show methods
-
     def show_bg(self, surface, brd, dragging):
+        WHITE = (255, 255, 255)
+        BLACK = (0,0,0)
+        surface.fill(WHITE)
         brdMat = board_toMatrix(brd.fen())
         for row in range(ROWS):
             for col in range (COLS):
                 if(row+col) % 2 == 0:
-                    color = (234, 235, 200) #light
+                    color = (235, 235, 200) #light
                 else:
-                    color = (119, 154, 88) #dark
+                    color = (120, 155, 90) #dark
                 #gets position according to python chess positions
                 brdPos = ((7-row)*8)+col
                 targetPiece = None
@@ -53,9 +68,10 @@ class Game:
                     if(self.dragInit):
                         self.dragPiece = mouse_position()
                         self.dragInit = False
-                        targetPiece = brd.piece_at(self.dragPiece)
-                        if targetPiece is not None:
-                            self.valid_moves = [move.to_square for move in brd.legal_moves if move.from_square == self.dragPiece]
+                        if(self.dragPiece != -1):
+                            targetPiece = brd.piece_at(self.dragPiece)
+                            if targetPiece is not None:
+                                self.valid_moves = [move.to_square for move in brd.legal_moves if move.from_square == self.dragPiece]
                     if(brdPos in self.valid_moves):
                         #green
                         color = (100,240,120)
@@ -154,6 +170,11 @@ class Game:
                 elif piece == "K":
                     king_white.set_alpha(256)
                     surface.blit(king_white, (x, y))
+        
+
+
+        pygame.draw.rect(surface, BLACK, surr_rect, 2)
+        surface.blit(surr_text,(button_x,button_y))
 
 
 
@@ -165,6 +186,8 @@ def mouse_position():
     if(mouse_pos[1] == 0):mouse_pos[1] = 1
     y = (mouse_pos[0])//SQSIZE
     x = (mouse_pos[1]+BOARD_ORIGIN[1])//SQSIZE
+    if(y>7):
+        return -1
     if(x==0):x=7
     elif(x==1):x=6
     elif(x==2):x=5

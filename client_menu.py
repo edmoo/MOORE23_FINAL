@@ -23,11 +23,12 @@ class ClientMenu:
 
     #show methods
 
-    def show_screen(self, surface):
+    def show_screen(self, surface, ipInput):
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
         # Clear the surface
         surface.fill(WHITE)
+        text_surface = base_font.render(ipInput, True, (0, 0, 0))
 
         # Draw the username field
         pygame.draw.rect(surface, BLACK, client_field, 2)
@@ -43,3 +44,5 @@ class ClientMenu:
         pygame.draw.rect(surface, BLACK, back_button, 2)
         back_text = font.render("Back", True, BLACK)
         surface.blit(back_text, (WIDTH // 2 - back_text.get_width() // 2, HEIGHT // 1.5 + 8))
+
+        surface.blit(text_surface, (client_field.x+5, client_field.y+5))
