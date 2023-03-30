@@ -28,7 +28,6 @@ class EndScreen:
         # Clear the surface
         surface.fill(WHITE)
 
-        # Draw the username field
         result = board.result
         if result == "1-0":
             victor_text = font.render("WHITE WINS!", True, BLACK)
@@ -40,8 +39,10 @@ class EndScreen:
         surface.blit(victor_text, (WIDTH // 4, HEIGHT // 3 + 8))
         
         # Draw the password field
+        noTurns = str(board.halfmove_clock)
+        statText = "No. Turns: "+ noTurns
         pygame.draw.rect(surface, BLACK, stats_field, 2)
-        start_text = font.render("No. Turns:", True, BLACK)
+        start_text = font.render(statText, True, BLACK)
         surface.blit(start_text, (WIDTH // 4 - start_text.get_width() // 2, HEIGHT // 2 + 8))
         
         # Draw the login button

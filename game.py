@@ -31,6 +31,18 @@ queen_white = pygame.transform.scale(queen_white, (SQSIZE, SQSIZE))
 king_white = pygame.transform.scale(king_white, (SQSIZE, SQSIZE))
 piece_color = (255, 255, 255)
 
+# Define the position and size of the list box
+LIST_BOX_X = 650
+LIST_BOX_Y = 50
+LIST_BOX_WIDTH = 300
+LIST_BOX_HEIGHT = 500
+
+# Define the position and size of the text area within the list box
+TEXT_AREA_X = LIST_BOX_X + 10
+TEXT_AREA_Y = LIST_BOX_Y + 10
+TEXT_AREA_WIDTH = LIST_BOX_WIDTH - 20
+TEXT_AREA_HEIGHT = LIST_BOX_HEIGHT - 20
+
 pygame.font.init()
 
 #create the font
@@ -50,7 +62,7 @@ class Game:
             self.valid_moves = None
     
     #show methods
-    def show_bg(self, surface, brd, dragging):
+    def show_bg(self, surface, brd, dragging, team, prevMoves):
         WHITE = (255, 255, 255)
         BLACK = (0,0,0)
         surface.fill(WHITE)
@@ -70,7 +82,8 @@ class Game:
                         self.dragInit = False
                         if(self.dragPiece != -1):
                             targetPiece = brd.piece_at(self.dragPiece)
-                            if targetPiece is not None:
+                            colo = brd.color_at(self.dragPiece)
+                            if targetPiece is not None and colo == team:
                                 self.valid_moves = [move.to_square for move in brd.legal_moves if move.from_square == self.dragPiece]
                     if(brdPos in self.valid_moves):
                         #green
@@ -175,6 +188,26 @@ class Game:
 
         pygame.draw.rect(surface, BLACK, surr_rect, 2)
         surface.blit(surr_text,(button_x,button_y))
+
+        # Clear the list box
+        pygame.draw.rect(surface, (255, 255, 255), (LIST_BOX_X, LIST_BOX_Y, LIST_BOX_WIDTH, LIST_BOX_HEIGHT))
+
+        # Draw the text in the list boxes
+        box_height = LIST_BOX_HEIGHT // 10
+        for i, move in enumerate(prevMoves):
+            text = f"{move[1]} - {move[2]}"
+            text_surface = font.render(text, True, (0, 0, 0))
+
+            box_y = LIST_BOX_Y + (i * box_height)
+            box_rect = pygame.Rect(LIST_BOX_X, box_y, LIST_BOX_WIDTH, box_height)
+            pygame.draw.rect(surface, (200, 200, 200), box_rect, 1)
+
+            text_x = box_rect.centerx - text_surface.get_width() // 2
+            text_y = box_rect.centery - text_surface.get_height() // 2
+            surface.blit(text_surface, (text_x, text_y))
+
+        # Draw the list box
+        pygame.draw.rect(surface, (0, 0, 0), (LIST_BOX_X, LIST_BOX_Y, LIST_BOX_WIDTH, LIST_BOX_HEIGHT), 2)
 
 
 

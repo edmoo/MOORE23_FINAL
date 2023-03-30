@@ -15,6 +15,7 @@ from menu import *
 from host_menu import *
 from client_menu import *
 from end_screen import *
+from join_lobby import *
 
 
 class Main:
@@ -46,6 +47,7 @@ class Main:
         sockets_list = []
         incorrectPass = False
         surrender = False
+        board_list = []
         while True:
             if(curr_window=="login"):
                 login.show_screen(screen,username,password)
@@ -172,7 +174,7 @@ class Main:
 
 
             elif(curr_window == "host_game"):
-                game.show_bg(screen,board,dragging)
+                game.show_bg(screen,board,dragging,chess.WHITE, board_list)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
@@ -196,6 +198,12 @@ class Main:
                                 curr_window = "endScreen"
                             #if move valid and gets made
                             if(make_move(move_start,move_end,board)):
+                                listApp = board.fen()
+                                board_list.append([listApp,move_start,move_end])
+                                if len(board_list) > 10:
+                                    board_list.pop(0)
+                                    for i in range(len(board_list)):
+                                        board_list[i][0] = i
                                 moveArr = str(move_start)+","+str(move_end)
                                 c.send(moveArr.encode())
                                 team_turn = "b"
@@ -212,7 +220,12 @@ class Main:
                     #RECIEVE MOVE FROM CLIENT
                     ready_to_read, _, _ = select.select([c], [], [], 0.5)
                     if ready_to_read:
-                        data = c.recv(1024)
+                        try:
+                            data = c.recv(1024)
+                        except BrokenPipeError:
+                            # If the client has closed the connection, a BrokenPipeError will be raised
+                            print('Client closed the connection')
+                            break
                     else:
                         data = None
 
@@ -227,6 +240,12 @@ class Main:
                             numbers =  re.findall(r'\d+', str(data))
                             numbers = [int(num) for num in numbers]
                             make_move(numbers[0],numbers[1],board)
+                            listApp = board.fen()
+                            board_list.append([listApp,numbers[0],numbers[1]])
+                            if len(board_list) > 10:
+                                board_list.pop(0)
+                                for i in range(len(board_list)):
+                                    board_list[i][0] = i
                             print(board)
                             team_turn = "w"
                     if(board.outcome()):
@@ -248,8 +267,7 @@ class Main:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:
-                        #remember quit_field is from menu.py but has same location as back button for this menu
-                        if(quit_field.collidepoint(pygame.mouse.get_pos())):
+                        if(back_button.collidepoint(pygame.mouse.get_pos())):
                             curr_window = "menu"
                         elif(join_field.collidepoint(pygame.mouse.get_pos())):
                             connectStart = 0
@@ -293,8 +311,20 @@ class Main:
                             else:
                                 ipInput += event.unicode
             elif(curr_window == "joinLobby"):
-                HostMenu.show_screen(self,screen,REN)
-                
+                JoinLobby.show_screen(self,screen
+                                      )
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        for conn in sockets_list:
+                            conn.close()
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if lobback_button.collidepoint(pygame.mouse.get_pos()):
+                            for conn in sockets_list:
+                                conn.close()
+                            curr_window = "joinMenu"
+
                 # receive data in non-blocking mode
                 ready_to_read, _, _ = select.select([s], [], [], 5)
                 if ready_to_read:
@@ -312,7 +342,7 @@ class Main:
                     print("No data received")
 
             elif(curr_window == "clientGame"):
-                game.show_bg(screen,board,dragging)
+                game.show_bg(screen,board,dragging,chess.BLACK, board_list)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         for conn in sockets_list:
@@ -325,7 +355,6 @@ class Main:
                     elif event.type == pygame.MOUSEBUTTONUP:
                         if surr_rect.collidepoint(pygame.mouse.get_pos()):
                             surrender = True
-                            print("surrender")
                         dragging = False
                         move_end = mouse_position()
                         if(team_turn == "b"):
@@ -335,6 +364,12 @@ class Main:
                                 s.send(surrString.encode())
                                 curr_window = "endScreen"
                             if(make_move(move_start,move_end,board)):
+                                listApp = board.fen()
+                                board_list.append([listApp,move_start,move_end])
+                                if len(board_list) > 10:
+                                    board_list.pop(0)
+                                    for i in range(len(board_list)):
+                                        board_list[i][0] = i
                                 moveArr = str(move_start)+","+str(move_end)
                                 #SEND MOVE ARR TO SERVER!!!
                                 s.send(moveArr.encode())
@@ -363,11 +398,17 @@ class Main:
                         dataDec = data.decode('utf-8').strip("b'").strip("'")
                         if(dataDec=='s'):
                             print("Opponent surrender!")
-                            board.result = "1-0"
+                            board.result = "0-1"
                             curr_window = "endScreen"
                         else:
                             numbers =  re.findall(r'\d+', str(data))
                             numbers = [int(num) for num in numbers]
+                            listApp = board.fen()
+                            board_list.append([listApp,numbers[0],numbers[1]])
+                            if len(board_list) > 10:
+                                board_list.pop(0)
+                                for i in range(len(board_list)):
+                                    board_list[i][0] = i
                             make_move(numbers[0],numbers[1],board)
                             team_turn = "b"
                             print(board)
