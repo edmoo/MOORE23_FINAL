@@ -32,22 +32,12 @@ class Main:
         username = ""
         password = ""
         FEN = ""
-        ipInput = ""
         game = self.game
         login = self.login
         screen = self.screen
-        board = None
         curr_window = "login"
-        move_start = ""
-        move_end = ""
-        team_turn = "w"
-        c = None
-        s = None
-        dragging = False
-        sockets_list = []
         incorrectPass = False
-        surrender = False
-        board_list = []
+
         while True:
             if(curr_window=="login"):
                 login.show_screen(screen,username,password)
@@ -99,13 +89,37 @@ class Main:
                     elif event.type == pygame.MOUSEBUTTONUP:
                         if (host_button.collidepoint(pygame.mouse.get_pos())):
                             connectStart = 0
+                            surrender = False
+                            board_list = []  
+                            sockets_list = []
+                            c = None
+                            s = None
+                            move_start = ""
+                            move_end = ""
+                            team_turn = "w"
+                            dragging = False
+                            board = None
+                            ipInput = ""
                             curr_window = "hostMenu"
+                            loop = True
                         elif(quit_field.collidepoint(pygame.mouse.get_pos())):
                             pygame.quit()
                             sys.exit()
                         elif(join_field.collidepoint(pygame.mouse.get_pos())):
                             connectStart = 0
+                            surrender = False
+                            board_list = []  
+                            sockets_list = []
+                            c = None
+                            s = None
+                            move_start = ""
+                            move_end = ""
+                            team_turn = "w"
+                            dragging = False
+                            board = None
+                            ipInput = ""
                             curr_window = "joinMenu"
+                            loop = True
             elif(curr_window=="hostMenu"):
                 if(connectStart == 0):
                     HostMenu.show_screen(self,screen,FEN)
@@ -137,6 +151,7 @@ class Main:
                     if event.type == pygame.QUIT:
                         for con in sockets_list:
                             con.close()
+                            sockets_list.remove(con)
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:
@@ -145,6 +160,7 @@ class Main:
                             curr_window = "menu"
                             for con in sockets_list:
                                 con.close()
+                                sockets_list.remove(con)
                         if(start_field.collidepoint(pygame.mouse.get_pos())):
                             try:
                                 if(c is not None):
@@ -179,6 +195,7 @@ class Main:
                     if event.type == pygame.QUIT:
                         for con in sockets_list:
                             con.close()
+                            sockets_list.remove(con)
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -222,13 +239,31 @@ class Main:
                     if ready_to_read:
                         try:
                             data = c.recv(1024)
-                        except BrokenPipeError:
+                            print("getting da data")
+                            print(data)
+                        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
                             # If the client has closed the connection, a BrokenPipeError will be raised
                             print('Client closed the connection')
-                            break
+                            for con in sockets_list:
+                                con.close()
+                                sockets_list.remove(con)
+                            data = None
+                            curr_window = "menu"
                     else:
                         data = None
 
+                    # Check if the other side has closed the connection
+                    try:
+                        c.send(b'ping')
+                    except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                        # If the client has closed the connection, a BrokenPipeError, ConnectionResetError, or ConnectionAbortedError will be raised
+                        print('Client closed the connection')
+                        for con in sockets_list:
+                            con.close()
+                            sockets_list.remove(con)
+                        curr_window = "menu"
+                    if data:
+                        data = data.replace(b"ping", b"")
                     # use the received data
                     if data:
                         dataDec = data.decode('utf-8').strip("b'").strip("'")
@@ -262,6 +297,7 @@ class Main:
                     if event.type == pygame.QUIT:
                         for con in sockets_list:
                             con.close()
+                            sockets_list.remove(con)
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:
@@ -314,12 +350,14 @@ class Main:
                     if event.type == pygame.QUIT:
                         for con in sockets_list:
                             con.close()
+                            sockets_list.remove(con)
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if lobback_button.collidepoint(pygame.mouse.get_pos()):
                             for con in sockets_list:
                                 con.close()
+                                sockets_list.remove(con)
                             curr_window = "joinMenu"
 
                 # receive data in non-blocking mode
@@ -343,6 +381,7 @@ class Main:
                     if event.type == pygame.QUIT:
                         for con in sockets_list:
                             con.close()
+                            sockets_list.remove(con)
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -371,6 +410,7 @@ class Main:
                                 moveArr = str(move_start)+","+str(move_end)+","+str(promote)
                                 #SEND MOVE ARR TO SERVER!!!
                                 s.send(moveArr.encode())
+                                loop = True
                                 team_turn = "w"
                                 if(board.outcome()):
                                     outcome = board.outcome()
@@ -386,10 +426,31 @@ class Main:
                     # receive data in non-blocking mode
                     ready_to_read, _, _ = select.select([s], [], [], 0.1)
                     if ready_to_read:
-                        data = s.recv(1024)
+                        try:
+                            data = s.recv(1024)
+                        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                            # If the client has closed the connection, a BrokenPipeError will be raised
+                            print('Client closed the connection')
+                            for con in sockets_list:
+                                con.close()
+                                sockets_list.remove(con)
+                            data = None
+                            curr_window = "menu"
                     else:
                         data = None
 
+                    # Check if the other side has closed the connection
+                    try:
+                        s.send(b'ping')
+                    except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                        # If the client has closed the connection, a BrokenPipeError, ConnectionResetError, or ConnectionAbortedError will be raised
+                        print('Client closed the connection')
+                        for con in sockets_list:
+                            con.close()
+                            sockets_list.remove(con)
+                        curr_window = "menu"
+                    if(data):
+                        data = data.replace(b"ping", b"")
                     # use the received data
                     if data:
                         dataDec = data.decode('utf-8').strip("b'").strip("'")
@@ -400,6 +461,8 @@ class Main:
                         else:
                             numbers =  re.findall(r'\d+', str(data))
                             numbers = [int(num) for num in numbers]
+                            print("HEEEERE")
+                            print(data)
                             make_move(numbers[0],numbers[1],board,screen,numbers[2])
                             listApp = board.fen()
                             board_list.append([listApp,int_to_square(numbers[0]),int_to_square(numbers[1]),board.piece_at(numbers[1])])
@@ -420,7 +483,18 @@ class Main:
                         curr_window = "endScreen"
             elif(curr_window=="endScreen"):
                 EndScreen.show_screen(self,screen,board)
-                print("ENDSCREEN!")
+                for con in sockets_list:
+                    con.close()
+                    sockets_list.remove(con)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        if continue_button.collidepoint(pygame.mouse.get_pos()):
+                            curr_window = "menu"
+                            
+
             
             pygame.display.update()
 

@@ -1,4 +1,5 @@
 import pygame
+import chess.svg
 from const import *
 from board import *
 
