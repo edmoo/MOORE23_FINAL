@@ -32,7 +32,7 @@ class HostMenu:
 
         # Draw the username field
         pygame.draw.rect(surface, BLACK, host_field, 2)
-        host_text = font.render("REN:", True, BLACK)
+        host_text = font.render("FEN:", True, BLACK)
         surface.blit(host_text, (WIDTH // 4 - host_text.get_width() - 16, HEIGHT // 3 + 8))
         
         # Draw the password field

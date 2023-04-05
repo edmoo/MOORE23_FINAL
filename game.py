@@ -33,9 +33,9 @@ piece_color = (255, 255, 255)
 
 # Define the position and size of the list box
 LIST_BOX_X = 650
-LIST_BOX_Y = 50
+LIST_BOX_Y = 30
 LIST_BOX_WIDTH = 300
-LIST_BOX_HEIGHT = 500
+LIST_BOX_HEIGHT = 300
 
 # Define the position and size of the text area within the list box
 TEXT_AREA_X = LIST_BOX_X + 10
@@ -76,7 +76,7 @@ class Game:
                 #gets position according to python chess positions
                 brdPos = ((7-row)*8)+col
                 targetPiece = None
-                if(dragging):
+                if(dragging and (brd.turn == team)):
                     if(self.dragInit):
                         self.dragPiece = mouse_position()
                         self.dragInit = False
@@ -195,7 +195,7 @@ class Game:
         # Draw the text in the list boxes
         box_height = LIST_BOX_HEIGHT // 10
         for i, move in enumerate(prevMoves):
-            text = f"{move[1]} - {move[2]}"
+            text = f"{move[3]} - {move[1]} to {move[2]}"
             text_surface = font.render(text, True, (0, 0, 0))
 
             box_y = LIST_BOX_Y + (i * box_height)
@@ -211,8 +211,13 @@ class Game:
 
 
 
-
-
+def int_to_square(n):
+    row = n // 8
+    col = n % 8
+    letter = chr(ord('A') + row)
+    number = col + 1
+    return f"{letter}{number}"
+    
 def mouse_position():
     mouse_pos = pygame.Vector2(pygame.mouse.get_pos()) - BOARD_ORIGIN
     if(mouse_pos[0] == 0):mouse_pos[0] = 1

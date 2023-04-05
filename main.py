@@ -31,7 +31,7 @@ class Main:
     def mainloop(self):
         username = ""
         password = ""
-        REN = ""
+        FEN = ""
         ipInput = ""
         game = self.game
         login = self.login
@@ -108,7 +108,7 @@ class Main:
                             curr_window = "joinMenu"
             elif(curr_window=="hostMenu"):
                 if(connectStart == 0):
-                    HostMenu.show_screen(self,screen,REN)
+                    HostMenu.show_screen(self,screen,FEN)
                     #START HOSTING, WAIT FOR CLIENT TO JOIN BEFORE STARTING GAME
                     host = socket.gethostname()
                     ip = socket.gethostbyname(host)
@@ -132,23 +132,23 @@ class Main:
                         print(f"Accepted connection from {addr}")
                         sockets_list.append(c)
                         
-                HostMenu.show_screen(self,screen,REN)
+                HostMenu.show_screen(self,screen,FEN)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        for conn in sockets_list:
-                            conn.close()
+                        for con in sockets_list:
+                            con.close()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:
                         #remember quit_field is from menu.py but has same location as back button for this menu
                         if(quit_field.collidepoint(pygame.mouse.get_pos())):
                             curr_window = "menu"
-                            for conn in sockets_list:
-                                conn.close()
+                            for con in sockets_list:
+                                con.close()
                         if(start_field.collidepoint(pygame.mouse.get_pos())):
                             try:
                                 if(c is not None):
-                                    board = initialise_board(REN)
+                                    board = initialise_board(FEN)
                                     c.send(board.fen().encode())
                                     curr_window = "host_game"
                             except NameError:
@@ -157,7 +157,7 @@ class Main:
                         #UPDATE REN FIELD
                         if host_field.collidepoint(pygame.mouse.get_pos()):
                             if event.key == pygame.K_BACKSPACE:
-                                REN = REN[:-1]
+                                FEN = FEN[:-1]
                             elif event.key == pygame.K_v and pygame.key.get_mods() & pygame.KMOD_CTRL:
                                 # Check if CTRL+V is pressed
                                 root = tk.Tk()
@@ -165,29 +165,28 @@ class Main:
                                 clipboard_text = root.clipboard_get()
                                 if clipboard_text:
                                     # If clipboard has text, append it to REN
-                                    REN += clipboard_text
+                                    FEN += clipboard_text
                             elif event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_CTRL:
                                 # Check if CTRL+Z is pressed
-                                REN = ''
+                                FEN = ''
                             else:
-                                REN += event.unicode
+                                FEN += event.unicode
 
 
             elif(curr_window == "host_game"):
                 game.show_bg(screen,board,dragging,chess.WHITE, board_list)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        for conn in sockets_list:
-                            conn.close()
+                        for con in sockets_list:
+                            con.close()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         dragging = True
                         move_start = mouse_position()
                     elif event.type == pygame.MOUSEBUTTONUP:
-                        if surr_rect.collidepoint(pygame.mouse.get_pos()):
+                        if surr_rect.collidepoint(pygame.mouse.get_pos()) and team_turn == "w":
                             surrender = True
-                            print("surrender")
                         dragging = False
                         move_end = mouse_position()
                         if(team_turn == "w"):
@@ -197,14 +196,15 @@ class Main:
                                 c.send(surrString.encode())
                                 curr_window = "endScreen"
                             #if move valid and gets made
-                            if(make_move(move_start,move_end,board)):
+                            promote = make_move(move_start,move_end,board,screen,None)
+                            if(promote):
                                 listApp = board.fen()
-                                board_list.append([listApp,move_start,move_end])
+                                board_list.append([listApp,int_to_square(move_start),int_to_square(move_end),board.piece_at(move_end)])
                                 if len(board_list) > 10:
                                     board_list.pop(0)
                                     for i in range(len(board_list)):
                                         board_list[i][0] = i
-                                moveArr = str(move_start)+","+str(move_end)
+                                moveArr = str(move_start)+","+str(move_end)+","+str(promote)
                                 c.send(moveArr.encode())
                                 team_turn = "b"
                             if(board.outcome()):
@@ -218,7 +218,7 @@ class Main:
                                 curr_window = "endScreen" 
                 if(team_turn=="b"):
                     #RECIEVE MOVE FROM CLIENT
-                    ready_to_read, _, _ = select.select([c], [], [], 0.5)
+                    ready_to_read, _, _ = select.select([c], [], [], 0.1)
                     if ready_to_read:
                         try:
                             data = c.recv(1024)
@@ -233,20 +233,18 @@ class Main:
                     if data:
                         dataDec = data.decode('utf-8').strip("b'").strip("'")
                         if(dataDec=='s'):
-                            print("enemy surrender!1")
                             board.result = "1-0"
                             curr_window = "endScreen"
                         else:
                             numbers =  re.findall(r'\d+', str(data))
                             numbers = [int(num) for num in numbers]
-                            make_move(numbers[0],numbers[1],board)
+                            make_move(numbers[0],numbers[1],board,screen,numbers[2])
                             listApp = board.fen()
-                            board_list.append([listApp,numbers[0],numbers[1]])
+                            board_list.append([listApp,int_to_square(numbers[0]),int_to_square(numbers[1]),board.piece_at(numbers[1])])
                             if len(board_list) > 10:
                                 board_list.pop(0)
                                 for i in range(len(board_list)):
                                     board_list[i][0] = i
-                            print(board)
                             team_turn = "w"
                     if(board.outcome()):
                         outcome = board.outcome()
@@ -262,8 +260,8 @@ class Main:
                 ClientMenu.show_screen(self,screen,ipInput)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        for conn in sockets_list:
-                            conn.close()
+                        for con in sockets_list:
+                            con.close()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:
@@ -311,22 +309,21 @@ class Main:
                             else:
                                 ipInput += event.unicode
             elif(curr_window == "joinLobby"):
-                JoinLobby.show_screen(self,screen
-                                      )
+                JoinLobby.show_screen(self,screen)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        for conn in sockets_list:
-                            conn.close()
+                        for con in sockets_list:
+                            con.close()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if lobback_button.collidepoint(pygame.mouse.get_pos()):
-                            for conn in sockets_list:
-                                conn.close()
+                            for con in sockets_list:
+                                con.close()
                             curr_window = "joinMenu"
 
                 # receive data in non-blocking mode
-                ready_to_read, _, _ = select.select([s], [], [], 5)
+                ready_to_read, _, _ = select.select([s], [], [], 0.1)
                 if ready_to_read:
                     data = s.recv(1024)
                 else:
@@ -335,7 +332,6 @@ class Main:
                 # use the received data
                 if data:
                     data = data.decode('utf-8').strip("b'").strip("'")
-                    print(data)
                     board = initialise_board(data)
                     curr_window = "clientGame"
                 else:
@@ -345,15 +341,15 @@ class Main:
                 game.show_bg(screen,board,dragging,chess.BLACK, board_list)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        for conn in sockets_list:
-                            conn.close()
+                        for con in sockets_list:
+                            con.close()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         dragging = True
                         move_start = mouse_position()
                     elif event.type == pygame.MOUSEBUTTONUP:
-                        if surr_rect.collidepoint(pygame.mouse.get_pos()):
+                        if surr_rect.collidepoint(pygame.mouse.get_pos()) and team_turn == "b":
                             surrender = True
                         dragging = False
                         move_end = mouse_position()
@@ -363,14 +359,16 @@ class Main:
                                 surrString = "s"
                                 s.send(surrString.encode())
                                 curr_window = "endScreen"
-                            if(make_move(move_start,move_end,board)):
+                            promote = make_move(move_start,move_end,board,screen,None)
+                            # 0 if invalid, 1 if no promotion, 2-5 to designate promotion
+                            if(promote):
                                 listApp = board.fen()
-                                board_list.append([listApp,move_start,move_end])
+                                board_list.append([listApp,int_to_square(move_start),int_to_square(move_end),board.piece_at(move_end)])
                                 if len(board_list) > 10:
                                     board_list.pop(0)
                                     for i in range(len(board_list)):
                                         board_list[i][0] = i
-                                moveArr = str(move_start)+","+str(move_end)
+                                moveArr = str(move_start)+","+str(move_end)+","+str(promote)
                                 #SEND MOVE ARR TO SERVER!!!
                                 s.send(moveArr.encode())
                                 team_turn = "w"
@@ -384,10 +382,9 @@ class Main:
                                         board.result = "1/2-1/2"
                                     print("checkmate")
                                     curr_window = "endScreen"
-                                print(board)
                 if(team_turn == "w"):
                     # receive data in non-blocking mode
-                    ready_to_read, _, _ = select.select([s], [], [], 0.5)
+                    ready_to_read, _, _ = select.select([s], [], [], 0.1)
                     if ready_to_read:
                         data = s.recv(1024)
                     else:
@@ -403,15 +400,14 @@ class Main:
                         else:
                             numbers =  re.findall(r'\d+', str(data))
                             numbers = [int(num) for num in numbers]
+                            make_move(numbers[0],numbers[1],board,screen,numbers[2])
                             listApp = board.fen()
-                            board_list.append([listApp,numbers[0],numbers[1]])
+                            board_list.append([listApp,int_to_square(numbers[0]),int_to_square(numbers[1]),board.piece_at(numbers[1])])
                             if len(board_list) > 10:
                                 board_list.pop(0)
                                 for i in range(len(board_list)):
                                     board_list[i][0] = i
-                            make_move(numbers[0],numbers[1],board)
                             team_turn = "b"
-                            print(board)
 
                     if(board.outcome()):
                         outcome = board.outcome()
