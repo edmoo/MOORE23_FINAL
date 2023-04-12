@@ -24,23 +24,21 @@ class Menu:
     #show methods
 
     def show_screen(self, surface):
-        BLACK = (0, 0, 0)
-        WHITE = (255, 255, 255)
 
         # Clear the surface
-        surface.fill(WHITE)
+        surface.fill(COLOUR_ONE)
 
         # Draw the username field
-        pygame.draw.rect(surface, BLACK, host_button, 2)
-        host_text = font.render("Host", True, BLACK)
+        pygame.draw.rect(surface, COLOUR_TWO, host_button, 2)
+        host_text = font.render("Host", True, COLOUR_TWO)
         surface.blit(host_text, (WIDTH // 4 - host_text.get_width() // 2, HEIGHT // 3 + 8))
         
         # Draw the password field
-        pygame.draw.rect(surface, BLACK, join_field, 2)
-        password_text = font.render("Join", True, BLACK)
+        pygame.draw.rect(surface, COLOUR_TWO, join_field, 2)
+        password_text = font.render("Join", True, COLOUR_TWO)
         surface.blit(password_text, (WIDTH // 4 - password_text.get_width() // 2, HEIGHT // 2 + 8))
         
         # Draw the login button
-        pygame.draw.rect(surface, BLACK, quit_field, 2)
-        quit_text = font.render("Quit", True, BLACK)
+        pygame.draw.rect(surface, COLOUR_TWO, quit_field, 2)
+        quit_text = font.render("Quit", True, COLOUR_TWO)
         surface.blit(quit_text, (WIDTH // 2 - quit_text.get_width() // 2, HEIGHT // 1.5 + 8))

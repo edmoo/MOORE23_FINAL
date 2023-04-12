@@ -20,18 +20,17 @@ class JoinLobby:
     #show methods
 
     def show_screen(self, surface):
-        BLACK = (0, 0, 0)
-        WHITE = (255, 255, 255)
+
         # Clear the surface
-        surface.fill(WHITE)
+        surface.fill(COLOUR_ONE)
 
         
 
-        start_text = font.render("Waiting for host to start...", True, BLACK)
+        start_text = font.render("Waiting for host to start...", True, COLOUR_TWO)
         surface.blit(start_text, (WIDTH // 4 - start_text.get_width() // 2, HEIGHT // 2 + 8))
         
         # Draw the login button
-        pygame.draw.rect(surface, BLACK, lobback_button, 2)
-        back_text = font.render("Back", True, BLACK)
+        pygame.draw.rect(surface, COLOUR_TWO, lobback_button, 2)
+        back_text = font.render("Back", True, COLOUR_TWO)
         surface.blit(back_text, (WIDTH // 2 - back_text.get_width() // 2, HEIGHT // 1.5 + 8))
 

@@ -6,6 +6,8 @@ import select
 import re 
 import tkinter as tk
 import sqlite3
+import smtplib
+from email.mime.text import MIMEText
 
 from const import *
 from game import *
@@ -37,6 +39,8 @@ class Main:
         screen = self.screen
         curr_window = "login"
         incorrectPass = False
+        passAuth = ""
+        email = ""
 
         while True:
             if(curr_window=="login"):
@@ -68,6 +72,13 @@ class Main:
                                 print("Incorrect username or password.")
 
                             conn.close()
+                        if reg_button.collidepoint(pygame.mouse.get_pos()):
+                            username = ""
+                            password = ""
+                            username_active = 0
+                            user_taken = False
+                            passMatch = True
+                            curr_window = "register"
                     elif event.type == pygame.KEYDOWN:
                         # Update the text of the username or password field
                         if username_field.collidepoint(pygame.mouse.get_pos()):
@@ -102,6 +113,8 @@ class Main:
                             ipInput = ""
                             curr_window = "hostMenu"
                             loop = True
+                            numTurns = 0
+                            toggleBoard = False
                         elif(quit_field.collidepoint(pygame.mouse.get_pos())):
                             pygame.quit()
                             sys.exit()
@@ -120,12 +133,14 @@ class Main:
                             ipInput = ""
                             curr_window = "joinMenu"
                             loop = True
+                            numTurns = 0
+                            toggleBoard = False
             elif(curr_window=="hostMenu"):
                 if(connectStart == 0):
-                    HostMenu.show_screen(self,screen,FEN)
                     #START HOSTING, WAIT FOR CLIENT TO JOIN BEFORE STARTING GAME
                     host = socket.gethostname()
                     ip = socket.gethostbyname(host)
+                    HostMenu.show_screen(self,screen,FEN,ip)
                     port = 5000
                     print(ip)
                     s = socket.socket(socket.AF_INET,
@@ -146,7 +161,7 @@ class Main:
                         print(f"Accepted connection from {addr}")
                         sockets_list.append(c)
                         
-                HostMenu.show_screen(self,screen,FEN)
+                HostMenu.show_screen(self,screen,FEN,ip)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         for con in sockets_list:
@@ -206,6 +221,16 @@ class Main:
                             surrender = True
                         dragging = False
                         move_end = mouse_position()
+                        mouse_pos = pygame.mouse.get_pos()
+                        for i, move in enumerate(board_list):
+                            box_y = LIST_BOX_Y + (i * (LIST_BOX_HEIGHT // 10))
+                            box_rect = pygame.Rect(LIST_BOX_X, box_y, LIST_BOX_WIDTH, (LIST_BOX_HEIGHT // 10))
+                            if box_rect.collidepoint(mouse_pos):
+                                tempWindow = tk.Tk()
+                                tempWindow.withdraw()
+                                tempWindow.clipboard_clear()
+                                tempWindow.clipboard_append(board_list[i][0])
+                                tempWindow.destroy()
                         if(team_turn == "w"):
                             if(surrender):
                                 board.result = "0-1"
@@ -215,6 +240,7 @@ class Main:
                             #if move valid and gets made
                             promote = make_move(move_start,move_end,board,screen,None)
                             if(promote):
+                                numTurns += 1
                                 listApp = board.fen()
                                 board_list.append([listApp,int_to_square(move_start),int_to_square(move_end),board.piece_at(move_end)])
                                 if len(board_list) > 10:
@@ -239,8 +265,6 @@ class Main:
                     if ready_to_read:
                         try:
                             data = c.recv(1024)
-                            print("getting da data")
-                            print(data)
                         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
                             # If the client has closed the connection, a BrokenPipeError will be raised
                             print('Client closed the connection')
@@ -248,7 +272,7 @@ class Main:
                                 con.close()
                                 sockets_list.remove(con)
                             data = None
-                            curr_window = "menu"
+                            curr_window = "connection_cut"
                     else:
                         data = None
 
@@ -261,7 +285,7 @@ class Main:
                         for con in sockets_list:
                             con.close()
                             sockets_list.remove(con)
-                        curr_window = "menu"
+                        curr_window = "connection_cut"
                     if data:
                         data = data.replace(b"ping", b"")
                     # use the received data
@@ -401,6 +425,7 @@ class Main:
                             promote = make_move(move_start,move_end,board,screen,None)
                             # 0 if invalid, 1 if no promotion, 2-5 to designate promotion
                             if(promote):
+                                numTurns += 1
                                 listApp = board.fen()
                                 board_list.append([listApp,int_to_square(move_start),int_to_square(move_end),board.piece_at(move_end)])
                                 if len(board_list) > 10:
@@ -435,7 +460,7 @@ class Main:
                                 con.close()
                                 sockets_list.remove(con)
                             data = None
-                            curr_window = "menu"
+                            curr_window = "connection_cut"
                     else:
                         data = None
 
@@ -448,7 +473,7 @@ class Main:
                         for con in sockets_list:
                             con.close()
                             sockets_list.remove(con)
-                        curr_window = "menu"
+                        curr_window = "connection_cut"
                     if(data):
                         data = data.replace(b"ping", b"")
                     # use the received data
@@ -482,7 +507,10 @@ class Main:
                             board.result = "1/2-1/2"
                         curr_window = "endScreen"
             elif(curr_window=="endScreen"):
-                EndScreen.show_screen(self,screen,board)
+                if(toggleBoard):
+                    game.show_bg(screen,board,dragging,chess.BLACK, board_list)
+                else:
+                    EndScreen.show_screen(self,screen,board,numTurns,toggleBoard)
                 for con in sockets_list:
                     con.close()
                     sockets_list.remove(con)
@@ -491,11 +519,129 @@ class Main:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:
-                        if continue_button.collidepoint(pygame.mouse.get_pos()):
+                        if toggleBoard:
+                            toggleBoard = False
+                        elif continue_button.collidepoint(pygame.mouse.get_pos()):
                             curr_window = "menu"
+                        elif toggle_button.collidepoint(pygame.mouse.get_pos()):
+                            toggleBoard = True
+            elif(curr_window == "connection_cut"):
+                #window displays if there is an unexpected loss of connection
+                screen.fill((255,255,255))
+                cont_button = pygame.Rect(WIDTH // 4, HEIGHT // 1.5, WIDTH // 2, 32)
+                font = font = pygame.font.SysFont("Arial", 32)
+                base_font = pygame.font.Font(None, 32)
+                pygame.draw.rect(screen, (0,0,0), continue_button, 2)
+                text1 = font.render("Continue", True, (0,0,0))
+                screen.blit(text1, (WIDTH // 2 - text1.get_width() // 2, HEIGHT // 1.5 + 8))
+                text2 = font.render("Opponent Disconnected: Connection Closed", True, (0,0,0))
+                screen.blit(text2, (WIDTH // 2 - text2.get_width() // 2, HEIGHT // 2 + 8))
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        for con in sockets_list:
+                            con.close()
+                            sockets_list.remove(con)
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        if cont_button.collidepoint(pygame.mouse.get_pos()):
+                            curr_window = "menu"   
+            elif(curr_window == "register"):
+                login.register(screen,username,password,passAuth,email)   
+                if(user_taken):
+                    base_font = pygame.font.Font(None, 22)
+                    text_taken= base_font.render("Username Taken or Invalid", True, (255,0,0))
+                    screen.blit(text_taken, (REGusername_field.x, REGusername_field.y+35))
+                if(not passMatch):
+                    base_font = pygame.font.Font(None, 22)
+                    text_pass= base_font.render("Passwords Dont Match", True, (255,0,0))
+                    screen.blit(text_pass, (REGpassAuth_field.x, REGpassAuth_field.y+35))
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        # Check if the user clicked on the username field
+                        username_active = 0
+                        if REGusername_field.collidepoint(event.pos):
+                            username_active = 1
+                        elif REGpassword_field.collidepoint(event.pos):
+                            username_active = 2
+                        elif REGpassAuth_field.collidepoint(event.pos):
+                            username_active = 3
+                        elif REGemail_field.collidepoint(event.pos):
+                            username_active = 4
+                        elif back_rect.collidepoint(event.pos):
+                            username_active = 0
+                            username = ""
+                            password = ""
+                            passAuth = ""
+                            email = ""
+                            curr_window = "login"
+                        elif register_button.collidepoint(event.pos): 
+                            regFail = False                           
+                            # check if email is in valid format
+                            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                                print("not valid email format")
+                                regFail = True
+                            if password != passAuth:
+                                passMatch = False
+                                regFail = True
+                            else: 
+                                passMatch = True
+                            smtp_server = 'smtp.gmail.com'
+                            smtp_port = 587
+                            smtp_username = 'oppoppoppopop@gmail.com'
+                            smtp_password = 'rocket99'
                             
+                            message = f'Your username is {username} and your password is {password}.'
+                            msg = MIMEText(message)
+                            msg['Subject'] = 'Your Login Information'
+                            msg['From'] = smtp_username
+                            msg['To'] = smtp_username
+                            
+                            with smtplib.SMTP(smtp_server, smtp_port) as smtp:
+                                smtp.ehlo()
+                                smtp.starttls()
+                                smtp.login(smtp_username, smtp_password)
+                                smtp.sendmail(smtp_username, smtp_username, msg.as_string())
+                                print("sent")
 
-            
+
+                            conn = sqlite3.connect('user_data.db')
+                            curr = conn.cursor()
+                            curr.execute("SELECT * FROM user_stats WHERE username = ?", (username,))
+                            row = curr.fetchone()
+                            if not row:
+                                curr.execute("INSERT INTO user_stats (username, password, wins, losses, draws) VALUES (?, ?, ?, ?, ?)", (username, password, 0, 0, 0))
+                                conn.commit()
+                            else:
+                                user_taken = True
+                                regFail = True
+                            conn.close()
+
+                    elif event.type == pygame.KEYDOWN:
+                        # Check if the user typed a character
+                        if username_active == 1:
+                            if event.key == pygame.K_BACKSPACE:
+                                username = username[:-1]
+                            else:
+                                username += event.unicode
+                        if username_active == 2:
+                            if event.key == pygame.K_BACKSPACE:
+                                password = password[:-1]
+                            else:
+                                password += event.unicode
+                        if username_active == 3:
+                            if event.key == pygame.K_BACKSPACE:
+                                passAuth = passAuth[:-1]
+                            else:
+                                passAuth += event.unicode
+                        if username_active == 4:
+                            if event.key == pygame.K_BACKSPACE:
+                                email = email[:-1]
+                            else:
+                                email += event.unicode
             pygame.display.update()
 
 

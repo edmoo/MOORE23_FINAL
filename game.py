@@ -64,8 +64,7 @@ class Game:
     
     #show methods
     def show_bg(self, surface, brd, dragging, team, prevMoves):
-        WHITE = (255, 255, 255)
-        BLACK = (0,0,0)
+
         surface.fill(WHITE)
         brdMat = board_toMatrix(brd.fen())
         for row in range(ROWS):
