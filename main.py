@@ -7,6 +7,8 @@ import re
 import tkinter as tk
 import sqlite3
 import smtplib
+import pyttsx3
+import threading
 from email.mime.text import MIMEText
 
 from const import *
@@ -18,7 +20,7 @@ from host_menu import *
 from client_menu import *
 from end_screen import *
 from join_lobby import *
-
+from settings import *
 
 class Main:
 
@@ -26,7 +28,6 @@ class Main:
         pygame.init()
         self.screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
         pygame.display.set_caption('Chess')
-        self.game = Game()
         self.login = Login()
         self.menu = Menu()
 
@@ -34,19 +35,23 @@ class Main:
         username = ""
         password = ""
         FEN = ""
-        game = self.game
         login = self.login
         screen = self.screen
         curr_window = "login"
         incorrectPass = False
         passAuth = ""
         email = ""
+        audioFeedback = False
+        engine = pyttsx3.init()
+        rate = engine.getProperty('rate')
+        engine.setProperty('rate', rate-50)
+        base_font = pygame.font.Font(None, 32)
 
         while True:
             if(curr_window=="login"):
                 login.show_screen(screen,username,password)
                 if(incorrectPass):
-                    text_login = base_font.render("Incorrect Username or password", True, (255,0,0))
+                    text_login = base_font.render("Incorrect Username or password", True, COLOUR_THREE)
                     screen.blit(text_login, (password_field.x, password_field.y+35))
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -55,7 +60,7 @@ class Main:
                     elif event.type == pygame.MOUSEBUTTONUP:
                         # Check if the login button was clicked
                         if login_button.collidepoint(pygame.mouse.get_pos()):
-                            conn = sqlite3.connect('user_data.db')
+                            conn = sqlite3.connect('users.db')
 
                             # create a cursor object to execute SQL commands
                             curr = conn.cursor()
@@ -111,6 +116,7 @@ class Main:
                             dragging = False
                             board = None
                             ipInput = ""
+                            game = Game(username)
                             curr_window = "hostMenu"
                             loop = True
                             numTurns = 0
@@ -131,10 +137,29 @@ class Main:
                             dragging = False
                             board = None
                             ipInput = ""
+                            game = Game(username)
                             curr_window = "joinMenu"
                             loop = True
                             numTurns = 0
                             toggleBoard = False
+                        elif(account_button.collidepoint(pygame.mouse.get_pos())):
+                            selected_button = 0
+                            visible = 0
+                            settings = Settings(audioFeedback,username)
+                            curr_window = "acc_settings"
+                            # Open the database connection
+                            conn = sqlite3.connect('users.db')
+
+                            # Create a cursor object
+                            cursor = conn.cursor()
+
+                            # Get the win, loss, and draw columns for the current user
+                            cursor.execute("SELECT wins, losses, draws FROM user_stats WHERE username = ?", (username,))
+                            results = cursor.fetchone()
+                            wins, losses, draws = results
+
+                            # Close the database connection
+                            conn.close()
             elif(curr_window=="hostMenu"):
                 if(connectStart == 0):
                     #START HOSTING, WAIT FOR CLIENT TO JOIN BEFORE STARTING GAME
@@ -249,6 +274,15 @@ class Main:
                                         board_list[i][0] = i
                                 moveArr = str(move_start)+","+str(move_end)+","+str(promote)
                                 c.send(moveArr.encode())
+                                moveSay = "White moves "+int_to_square(move_start)+" to "+int_to_square(move_end)                
+                                def say_thread():
+                                    # Check if the engine is already running a loop
+                                    if not engine._inLoop:
+                                        engine.say(moveSay)
+                                        engine.runAndWait()
+                                if(audioFeedback):
+                                    thread = threading.Thread(target = say_thread)
+                                    thread.start()
                                 team_turn = "b"
                             if(board.outcome()):
                                 outcome = board.outcome()
@@ -298,6 +332,16 @@ class Main:
                             numbers =  re.findall(r'\d+', str(data))
                             numbers = [int(num) for num in numbers]
                             make_move(numbers[0],numbers[1],board,screen,numbers[2])
+                            moveSay = "Black moves "+int_to_square(numbers[0])+" to "+int_to_square(numbers[1])                
+                            def say_thread():
+                                # Check if the engine is already running a loop
+                                if not engine._inLoop:
+                                    # If not, start a new loop and speak the text asynchronously
+                                    engine.say(moveSay)
+                                    engine.runAndWait()
+                            if(audioFeedback):
+                                thread = threading.Thread(target = say_thread)
+                                thread.start()
                             listApp = board.fen()
                             board_list.append([listApp,int_to_square(numbers[0]),int_to_square(numbers[1]),board.piece_at(numbers[1])])
                             if len(board_list) > 10:
@@ -433,6 +477,15 @@ class Main:
                                     for i in range(len(board_list)):
                                         board_list[i][0] = i
                                 moveArr = str(move_start)+","+str(move_end)+","+str(promote)
+                                moveSay = "Black moves "+int_to_square(move_start)+" to "+int_to_square(move_end)                
+                                def say_thread():
+                                    # Check if the engine is already running a loop
+                                    if not engine._inLoop:
+                                        engine.say(moveSay)
+                                        engine.runAndWait()
+                                if(audioFeedback):
+                                    thread = threading.Thread(target = say_thread)
+                                    thread.start()
                                 #SEND MOVE ARR TO SERVER!!!
                                 s.send(moveArr.encode())
                                 loop = True
@@ -490,6 +543,15 @@ class Main:
                             print(data)
                             make_move(numbers[0],numbers[1],board,screen,numbers[2])
                             listApp = board.fen()
+                            moveSay = "White moves "+int_to_square(numbers[0])+" to "+int_to_square(numbers[1])                
+                            def say_thread():
+                                # Check if the engine is already running a loop
+                                if not engine._inLoop:
+                                    engine.say(moveSay)
+                                    engine.runAndWait()
+                            if(audioFeedback):
+                                thread = threading.Thread(target = say_thread)
+                                thread.start()
                             board_list.append([listApp,int_to_square(numbers[0]),int_to_square(numbers[1]),board.piece_at(numbers[1])])
                             if len(board_list) > 10:
                                 board_list.pop(0)
@@ -608,7 +670,7 @@ class Main:
                                 print("sent")
 
 
-                            conn = sqlite3.connect('user_data.db')
+                            conn = sqlite3.connect('users.db')
                             curr = conn.cursor()
                             curr.execute("SELECT * FROM user_stats WHERE username = ?", (username,))
                             row = curr.fetchone()
@@ -642,6 +704,34 @@ class Main:
                                 email = email[:-1]
                             else:
                                 email += event.unicode
+            elif(curr_window == "acc_settings"):
+                settings.show_screen(screen, wins, losses, draws,selected_button,audioFeedback)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if colour_wheel_rect.collidepoint(pygame.mouse.get_pos()) and visible:
+                            update_color(screen,selected_button,username)
+                        elif colour_one_rect.collidepoint(pygame.mouse.get_pos()):
+                            visible = 1
+                            selected_button = 1
+                        elif colour_two_rect.collidepoint(pygame.mouse.get_pos()):
+                            visible = 1
+                            selected_button = 2
+                        elif audio_toggle_rect.collidepoint(pygame.mouse.get_pos()):
+                            if(audioFeedback):
+                                audioFeedback = 0
+                            else:
+                                audioFeedback = 1
+                        elif sett_quit_field.collidepoint(pygame.mouse.get_pos()):
+                            curr_window = "menu"
+                        else: 
+                            selected_button = 0
+                            visible = 0
+                        
+
+
             pygame.display.update()
 
 

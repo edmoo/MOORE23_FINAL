@@ -1,4 +1,5 @@
 import pygame
+pygame.font.init()
 
 #screen dimensions
 WIDTH = 1000
@@ -19,3 +20,23 @@ COLOUR_TWO = (206,185,44)
 COLOUR_THREE = (241,103,117)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
+COLOUR_BLACK = (0,0,0)
+COLOUR_WHITE = (255,255,255)
+
+# Create the font
+font = pygame.font.SysFont("Arial", 32)
+base_font = pygame.font.Font(None, 32)
+
+def update_black(colour):
+    global COLOUR_BLACK 
+    COLOUR_BLACK = colour
+
+def update_white(colour):
+    global COLOUR_WHITE
+    COLOUR_WHITE = colour
+
+def get_black():
+    return COLOUR_BLACK
+
+def get_white():
+    return COLOUR_WHITE

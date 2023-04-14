@@ -2,6 +2,8 @@ import pygame
 import chess.svg
 from const import *
 from board import *
+import sqlite3
+import ast 
 
 pawn_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_pawn_1x_ns.png")
 rook_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_rook_1x_ns.png")
@@ -44,11 +46,6 @@ TEXT_AREA_Y = LIST_BOX_Y + 10
 TEXT_AREA_WIDTH = LIST_BOX_WIDTH - 20
 TEXT_AREA_HEIGHT = LIST_BOX_HEIGHT - 20
 
-pygame.font.init()
-
-#create the font
-font = font = pygame.font.SysFont("Arial", 32)
-base_font = pygame.font.Font(None, 32)
 surr_text = font.render("Surrender", True, (0,0,0))
 button_x = GAMEWIDTH + ((WIDTH - GAMEWIDTH) // 2) - (surr_text.get_width() // 2)
 button_y = HEIGHT // 1.5 + 8
@@ -57,10 +54,22 @@ surr_rect.x = button_x
 surr_rect.y = button_y
 class Game:
     
-    def __init__(self):
+    def __init__(self,username):
             self.dragInit = True
             self.dragPiece = None
             self.valid_moves = None
+            self.conn = sqlite3.connect('users.db')
+            c = self.conn.cursor()
+            # Retrieve the white and black colors from the database for this user
+            c.execute("SELECT white, black FROM user_stats WHERE username = ?", (username,))
+            row = c.fetchone()
+            if row is not None:
+                self.white = ast.literal_eval(row[0])
+                self.black = ast.literal_eval(row[1])
+            else:
+                # If no data was found in the database for this user, set default values
+                self.white = (255, 255, 255)
+                self.black = (0, 0, 0)
     
     #show methods
     def show_bg(self, surface, brd, dragging, team, prevMoves):
@@ -70,9 +79,10 @@ class Game:
         for row in range(ROWS):
             for col in range (COLS):
                 if(row+col) % 2 == 0:
-                    color = (235, 235, 200) #light
+                    color = self.white #light
+                    print(color)
                 else:
-                    color = (120, 155, 90) #dark
+                    color = self.black #dark
                 #gets position according to python chess positions
                 brdPos = ((7-row)*8)+col
                 targetPiece = None
