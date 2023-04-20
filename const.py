@@ -24,19 +24,5 @@ COLOUR_BLACK = (0,0,0)
 COLOUR_WHITE = (255,255,255)
 
 # Create the font
-font = pygame.font.SysFont("Arial", 32)
+font = pygame.font.Font("OpenDyslexic-Regular.otf", 24)
 base_font = pygame.font.Font(None, 32)
-
-def update_black(colour):
-    global COLOUR_BLACK 
-    COLOUR_BLACK = colour
-
-def update_white(colour):
-    global COLOUR_WHITE
-    COLOUR_WHITE = colour
-
-def get_black():
-    return COLOUR_BLACK
-
-def get_white():
-    return COLOUR_WHITE

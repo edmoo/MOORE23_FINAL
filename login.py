@@ -34,7 +34,7 @@ class Login:
 
     def show_screen(self, surface, username, password):
         
-        # Clear the surface
+        #clear surface
         surface.fill(COLOUR_ONE)
         text_surface = base_font.render(username, True, (0, 0, 0))
         passStar = ""
@@ -43,27 +43,30 @@ class Login:
 
         pass_surface = base_font.render(passStar, True, (0,0,0))
 
-        # Draw the username field
+        # Draw username field
         pygame.draw.rect(surface, COLOUR_TWO, username_field, 2)
+
+        # Render username label and blit to surface
         username_text = font.render("Username:", True, COLOUR_TWO)
-        surface.blit(username_text, (WIDTH // 4 - username_text.get_width() - 16, HEIGHT // 3 + 8))
-        
-        # Draw the password field
+        username_text_pos = (username_field.left - username_text.get_width() - 16, HEIGHT // 3)
+        surface.blit(username_text, username_text_pos)
+
+        #draw password field
         pygame.draw.rect(surface, COLOUR_TWO, password_field, 2)
         password_text = font.render("Password:", True, COLOUR_TWO)
-        surface.blit(password_text, (WIDTH // 4 - password_text.get_width() - 16, HEIGHT // 2 + 8))
+        surface.blit(password_text, (WIDTH // 4 - password_text.get_width() - 16, HEIGHT // 2))
         
-        # Draw the login button
+        #draw login button
         pygame.draw.rect(surface, COLOUR_TWO, login_button)
         login_text = font.render("Login", True, BLACK)
         surface.blit(login_text, (WIDTH // 2 - login_text.get_width() // 2, HEIGHT // 1.5))
 
-        # Draw the register button
+        #draw register button
         pygame.draw.rect(surface, COLOUR_TWO, reg_button)
         register_text = font.render("Register New Account", True, BLACK)
         surface.blit(register_text, (WIDTH // 2 - register_text.get_width() // 2, login_button.bottom + 8))
         
-        #Draw the title
+        #draw title
         title_text = title_font.render("ChessPAL", True, COLOUR_THREE)
         surface.blit(title_text, (WIDTH // 3 - 10, 40))
 
@@ -73,7 +76,7 @@ class Login:
 
 
     def register(self, surface, username, password, passAuth, email):
-        # Clear the surface
+        #clear the surface
         surface.fill(COLOUR_ONE)
 
         # Draw the username field

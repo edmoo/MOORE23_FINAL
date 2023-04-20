@@ -72,15 +72,15 @@ class Game:
                 self.black = (0, 0, 0)
     
     #show methods
-    def show_bg(self, surface, brd, dragging, team, prevMoves):
-
-        surface.fill(WHITE)
+    def show_bg(self, surface, brd, dragging, team, prevMoves, mov, selected_square):
+        i = -1
+        surface.fill(COLOUR_ONE)
         brdMat = board_toMatrix(brd.fen())
         for row in range(ROWS):
             for col in range (COLS):
+                i += 1
                 if(row+col) % 2 == 0:
                     color = self.white #light
-                    print(color)
                 else:
                     color = self.black #dark
                 #gets position according to python chess positions
@@ -88,7 +88,15 @@ class Game:
                 targetPiece = None
                 if(dragging and (brd.turn == team)):
                     if(self.dragInit):
-                        self.dragPiece = mouse_position()
+                        if(selected_square != -1):
+                            move_start = 63-selected_square
+                            row = move_start // 8 
+                            col = move_start % 8
+                            flipped_col = abs(col - 7) 
+                            move_start = row * 8 + flipped_col 
+                            self.dragPiece = move_start
+                        else:
+                            self.dragPiece = mouse_position()
                         self.dragInit = False
                         if(self.dragPiece != -1):
                             targetPiece = brd.piece_at(self.dragPiece)
@@ -101,9 +109,11 @@ class Game:
                 else:
                     self.dragInit = True
                     self.valid_moves = []
-
                 rect = (col*SQSIZE, row*SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface,color,rect)
+                if(i == selected_square):
+                    select_rect = (col*SQSIZE, row*SQSIZE, SQSIZE, SQSIZE)
+                    pygame.draw.rect(surface, BLACK, select_rect,4)
         for row in range(8):
             for col in range(8):
                 x = col * SQSIZE
@@ -113,7 +123,10 @@ class Game:
                 piece = brdMat[row][col]
                 if(dragging):
                     if(brdPos == self.dragPiece):
-                        mouse_pos = pygame.mouse.get_pos()
+                        if(selected_square == -1):
+                            mouse_pos = pygame.mouse.get_pos()
+                        else:
+                            mouse_pos = (-100,-100)
                         image_pos = (mouse_pos[0] - SQSIZE / 2, mouse_pos[1] - SQSIZE / 2)
                         if(brd.turn == chess.BLACK):
                             if piece == "p":
@@ -196,7 +209,7 @@ class Game:
         
 
 
-        pygame.draw.rect(surface, BLACK, surr_rect, 2)
+        pygame.draw.rect(surface, COLOUR_TWO, surr_rect)
         surface.blit(surr_text,(button_x,button_y))
 
         # Clear the list box
@@ -216,17 +229,40 @@ class Game:
             text_y = box_rect.centery - text_surface.get_height() // 2
             surface.blit(text_surface, (text_x, text_y))
 
-        # Draw the list box
+        #draw the list box
         pygame.draw.rect(surface, (0, 0, 0), (LIST_BOX_X, LIST_BOX_Y, LIST_BOX_WIDTH, LIST_BOX_HEIGHT), 2)
+        
+        word_to_num = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"}
 
+        #draw voice command inputs
+        show_mov = False
+        for var in mov:
+            if var != "":
+                show_mov = True
+        if show_mov:
+            mov_str = str(mov[0]).upper()+str(mov[1])+" "+str(mov[2]).upper()+str(mov[3])
+            for word, num in word_to_num.items():
+                mov_str = mov_str.replace(word, num)
+            back_text = font.render(mov_str, True, BLACK)
+            back_text_pos = back_text.get_rect(center=surr_rect.center)
+            # Add the height of surr_rect to the y-coordinate of center position
+            back_text_pos.y = surr_rect.bottom + back_text.get_height() // 2
+            surface.blit(back_text, back_text_pos) 
 
 
 def int_to_square(n):
-    row = n // 8
-    col = n % 8
+    col = n // 8
+    row = n % 8
     letter = chr(ord('A') + row)
     number = col + 1
     return f"{letter}{number}"
+
+def square_to_int(square):
+    letter = square[0]
+    number = int(square[1])
+    row = ord(letter) - ord('A')
+    col = number - 1
+    return col * 8 + row
     
 def mouse_position():
     mouse_pos = pygame.Vector2(pygame.mouse.get_pos()) - BOARD_ORIGIN

@@ -12,9 +12,9 @@ draws_label_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3 + 80, WIDTH // 2, 32)
 colour_one_rect = pygame.Rect(WIDTH // 4, (HEIGHT // 2+20), WIDTH // 2, 32)
 colour_two_rect = pygame.Rect(WIDTH // 4, HEIGHT // 2 + 60, WIDTH // 2, 32)
 audio_toggle_rect = pygame.Rect(WIDTH // 4, HEIGHT // 2 + 100, WIDTH // 2, 32)
-sett_quit_field = pygame.Rect(WIDTH // 4, HEIGHT // 1.5+40, WIDTH // 2, 32)
+voice_toggle_rect = pygame.Rect(WIDTH // 4, HEIGHT // 1.5+40, WIDTH // 2, 32)
+sett_quit_field = pygame.Rect(WIDTH // 4, HEIGHT // 1.5+80, WIDTH // 2, 32)
 title_font = pygame.font.SysFont("Oswald", 120)
-font = pygame.font.SysFont("Arial", 24)
 
 COLOR_WHEEL_CENTER = (colour_one_rect.right-(colour_one_rect.width//4), colour_one_rect.bottom)
 COLOR_WHEEL_RADIUS = 75
@@ -34,7 +34,7 @@ class Settings:
 
     # Show methods
 
-    def show_screen(self, surface, wins, losses, draws, selected_button, audioFeedback):
+    def show_screen(self, surface, wins, losses, draws, selected_button, audioFeedback, voiceCommands):
         # Clear the surface
         surface.fill(COLOUR_ONE)
         conn = sqlite3.connect('users.db')
@@ -68,13 +68,13 @@ class Settings:
         surface.blit(draws_label_text, draws_label_text_pos)
 
         pygame.draw.rect(surface, COLOUR_TWO, colour_one_rect)
-        colour_one_text = font.render("Black Team:", True, BLACK)
+        colour_one_text = font.render("White Team:", True, BLACK)
         colour_one_text_pos = colour_one_text.get_rect(center=(colour_one_rect.left + 130, colour_one_rect.centery))
         surface.blit(colour_one_text, colour_one_text_pos)
         pygame.draw.rect(surface, self.selected_color, (colour_one_rect.left + 230, colour_one_rect.top, 32, 32))
  
         pygame.draw.rect(surface, COLOUR_TWO, colour_two_rect)
-        colour_two_text = font.render("White Team:", True, BLACK)
+        colour_two_text = font.render("Black Team:", True, BLACK)
         colour_two_text_pos = colour_two_text.get_rect(center=(colour_two_rect.left + 130, colour_two_rect.centery))
         surface.blit(colour_two_text, colour_two_text_pos)
         pygame.draw.rect(surface, self.selected_colour2, (colour_two_rect.left + 230, colour_two_rect.top, 32, 32))
@@ -94,7 +94,24 @@ class Settings:
             # Draw the smaller rectangle
             pygame.draw.rect(surface, (0, 0, 0), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]))
             pygame.draw.rect(surface, (255, 255, 255), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]), width=1)
-                    
+
+
+        pygame.draw.rect(surface, COLOUR_TWO, voice_toggle_rect)
+        voice_text = font.render("Toggle Voice:", True, BLACK)
+        voice_text_pos = voice_text.get_rect(center=(voice_toggle_rect.left + 130, voice_toggle_rect.centery))
+        surface.blit(voice_text, voice_text_pos)
+        pygame.draw.rect(surface, (255,255,255), (voice_toggle_rect.left + 230, voice_toggle_rect.top, 32, 32))
+        if(voiceCommands):
+            small_rect_size = (16, 16)
+
+            # Calculate the x and y coordinates of the smaller rectangle to center it within the larger rectangle
+            small_rect_x = voice_toggle_rect.left + 230 + (32 - small_rect_size[0]) // 2
+            small_rect_y = voice_toggle_rect.top + (32 - small_rect_size[1]) // 2
+
+            # Draw the smaller rectangle
+            pygame.draw.rect(surface, (0, 0, 0), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]))
+            pygame.draw.rect(surface, (255, 255, 255), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]), width=1)
+
         pygame.draw.rect(surface, COLOUR_TWO, sett_quit_field)
         back_text = font.render(f"Back", True, BLACK)
         back_text_pos = back_text.get_rect(center=sett_quit_field.center)
