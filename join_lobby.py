@@ -19,7 +19,7 @@ class JoinLobby:
         surface.blit(start_text, ((WIDTH // 4 - start_text.get_width() // 2)+10, HEIGHT // 2 + 8))
         
         pygame.draw.rect(surface, COLOUR_TWO, lobback_button, 0) # Draw a solid filled rectangle
-        back_text = font.render("Back", True, BLACK)
+        back_text = font.render("1.Back", True, BLACK)
         surface.blit(back_text, (WIDTH // 2 - back_text.get_width() // 2, HEIGHT // 1.5))
 
 

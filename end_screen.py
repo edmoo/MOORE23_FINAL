@@ -42,12 +42,12 @@ class EndScreen:
     
         #continue to menu
         pygame.draw.rect(surface, COLOUR_TWO, continue_button)
-        back_text = font.render("Continue", True, BLACK)
+        back_text = font.render("1.Continue", True, BLACK)
         back_text_pos = back_text.get_rect(center=continue_button.center)
         surface.blit(back_text, back_text_pos)
 
         #toggle board view
         pygame.draw.rect(surface, COLOUR_TWO, toggle_button)
-        toggle_text = font.render("View Board", True, BLACK)
+        toggle_text = font.render("2.View Board", True, BLACK)
         toggle_text_pos = toggle_text.get_rect(center=toggle_button.center)
         surface.blit(toggle_text, toggle_text_pos)

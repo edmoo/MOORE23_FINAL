@@ -34,10 +34,11 @@ class Settings:
 
     # Show methods
 
-    def show_screen(self, surface, wins, losses, draws, selected_button, audioFeedback, voiceCommands):
+    def show_screen(self, surface, wins, losses, draws, selected_button, audioFeedback, voiceCommands, h_code):
         # Clear the surface
         surface.fill(COLOUR_ONE)
-        conn = sqlite3.connect('users.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+        conn = sqlite3.connect(db_path)
         c = conn.cursor()
         # Retrieve the white and black colors from the database for this user
         c.execute("SELECT white, black FROM user_stats WHERE username = ?", (self.username,))
@@ -46,81 +47,75 @@ class Settings:
             self.selected_color = ast.literal_eval(row[0])
             self.selected_colour2 = ast.literal_eval(row[1])
         else:
-            # If no data was found in the database for this user, set default values
+            #set default values if none
             self.selected_color = (255, 255, 255)
             self.selected_colour2 = (0, 0, 0)
-        # Draw the Wins label
+
         pygame.draw.rect(surface, COLOUR_TWO, wins_label_rect)
         wins_label_text = font.render(f"Wins: {wins}", True, BLACK)
         wins_label_text_pos = wins_label_text.get_rect(center=wins_label_rect.center)
         surface.blit(wins_label_text, wins_label_text_pos)
 
-        # Draw the Losses label
         pygame.draw.rect(surface, COLOUR_TWO, losses_label_rect)
         losses_label_text = font.render(f"Losses: {losses}", True, BLACK)
         losses_label_text_pos = losses_label_text.get_rect(center=losses_label_rect.center)
         surface.blit(losses_label_text, losses_label_text_pos)
 
-        # Draw the Draws label
         pygame.draw.rect(surface, COLOUR_TWO, draws_label_rect)
         draws_label_text = font.render(f"Draws: {draws}", True, BLACK)
         draws_label_text_pos = draws_label_text.get_rect(center=draws_label_rect.center)
         surface.blit(draws_label_text, draws_label_text_pos)
 
         pygame.draw.rect(surface, COLOUR_TWO, colour_one_rect)
-        colour_one_text = font.render("White Team:", True, BLACK)
+        colour_one_text = font.render("1.White Team:", True, BLACK)
         colour_one_text_pos = colour_one_text.get_rect(center=(colour_one_rect.left + 130, colour_one_rect.centery))
         surface.blit(colour_one_text, colour_one_text_pos)
         pygame.draw.rect(surface, self.selected_color, (colour_one_rect.left + 230, colour_one_rect.top, 32, 32))
  
         pygame.draw.rect(surface, COLOUR_TWO, colour_two_rect)
-        colour_two_text = font.render("Black Team:", True, BLACK)
+        colour_two_text = font.render("2.Black Team:", True, BLACK)
         colour_two_text_pos = colour_two_text.get_rect(center=(colour_two_rect.left + 130, colour_two_rect.centery))
         surface.blit(colour_two_text, colour_two_text_pos)
         pygame.draw.rect(surface, self.selected_colour2, (colour_two_rect.left + 230, colour_two_rect.top, 32, 32))
          
         pygame.draw.rect(surface, COLOUR_TWO, audio_toggle_rect)
-        audio_text = font.render("Toggle Audio:", True, BLACK)
+        audio_text = font.render("3.Toggle Audio:", True, BLACK)
         audio_text_pos = audio_text.get_rect(center=(audio_toggle_rect.left + 130, audio_toggle_rect.centery))
         surface.blit(audio_text, audio_text_pos)
         pygame.draw.rect(surface, (255,255,255), (audio_toggle_rect.left + 230, audio_toggle_rect.top, 32, 32))
         if(audioFeedback):
             small_rect_size = (16, 16)
 
-            # Calculate the x and y coordinates of the smaller rectangle to center it within the larger rectangle
             small_rect_x = audio_toggle_rect.left + 230 + (32 - small_rect_size[0]) // 2
             small_rect_y = audio_toggle_rect.top + (32 - small_rect_size[1]) // 2
 
-            # Draw the smaller rectangle
             pygame.draw.rect(surface, (0, 0, 0), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]))
             pygame.draw.rect(surface, (255, 255, 255), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]), width=1)
 
 
         pygame.draw.rect(surface, COLOUR_TWO, voice_toggle_rect)
-        voice_text = font.render("Toggle Voice:", True, BLACK)
+        voice_text = font.render("4.Toggle Voice:", True, BLACK)
         voice_text_pos = voice_text.get_rect(center=(voice_toggle_rect.left + 130, voice_toggle_rect.centery))
         surface.blit(voice_text, voice_text_pos)
         pygame.draw.rect(surface, (255,255,255), (voice_toggle_rect.left + 230, voice_toggle_rect.top, 32, 32))
         if(voiceCommands):
             small_rect_size = (16, 16)
 
-            # Calculate the x and y coordinates of the smaller rectangle to center it within the larger rectangle
             small_rect_x = voice_toggle_rect.left + 230 + (32 - small_rect_size[0]) // 2
             small_rect_y = voice_toggle_rect.top + (32 - small_rect_size[1]) // 2
 
-            # Draw the smaller rectangle
             pygame.draw.rect(surface, (0, 0, 0), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]))
             pygame.draw.rect(surface, (255, 255, 255), (small_rect_x, small_rect_y, small_rect_size[0], small_rect_size[1]), width=1)
 
         pygame.draw.rect(surface, COLOUR_TWO, sett_quit_field)
-        back_text = font.render(f"Back", True, BLACK)
+        back_text = font.render(f"5.Back", True, BLACK)
         back_text_pos = back_text.get_rect(center=sett_quit_field.center)
         surface.blit(back_text, back_text_pos)    
 
         #write header
         title_text = title_font.render("Settings", True, COLOUR_THREE)
         surface.blit(title_text, (WIDTH // 3 - 10, 40))
-        if(selected_button == 1 or selected_button == 2):
+        if((selected_button == 1 or selected_button == 2) and h_code == ""):
             #draws colour wheel to screen if user selecting colour
             draw_color_wheel(surface)
 
@@ -138,7 +133,8 @@ def draw_color_wheel(surface):
 
 #updates the team colours
 def update_color(surface, selected_button,username):
-    conn = sqlite3.connect('users.db')
+    db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+    conn = sqlite3.connect(db_path)
     x, y = pygame.mouse.get_pos()
     color = surface.get_at((x, y))
     if color.a != 0:
@@ -154,4 +150,27 @@ def update_color(surface, selected_button,username):
             c = conn.cursor()
             c.execute("UPDATE user_stats SET white = ? WHERE username = ?", (str(selected_colour2), username))
             conn.commit()
+    conn.close()
+
+#updates the team colours
+def update_color_hex(surface, selected_button,username,h_hex):
+    if len(h_hex) != 6:
+        return
+
+    color = tuple(int(h_hex[i:i+2], 16) for i in (0, 2, 4))
+
+    db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+    conn = sqlite3.connect(db_path)
+    if(selected_button == 2):
+        selected_color = color[0:3]
+        #update black in db
+        c = conn.cursor()
+        c.execute("UPDATE user_stats SET black = ? WHERE username = ?", (str(selected_color), username))
+        conn.commit()
+    elif(selected_button == 1):
+        selected_colour2 = color[0:3]
+        #update white in db
+        c = conn.cursor()
+        c.execute("UPDATE user_stats SET white = ? WHERE username = ?", (str(selected_colour2), username))
+        conn.commit()
     conn.close()

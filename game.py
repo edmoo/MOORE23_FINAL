@@ -4,13 +4,22 @@ from const import *
 from board import *
 import sqlite3
 import ast 
+import os
 
-pawn_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_pawn_1x_ns.png")
-rook_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_rook_1x_ns.png")
-knight_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_knight_1x_ns.png")
-bishop_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_bishop_1x_ns.png")
-queen_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_queen_1x_ns.png")
-king_black = pygame.image.load("sprites/PNGs/No shadow/1x/b_king_1x_ns.png")
+sprite_dir = os.path.join(os.path.dirname(__file__), "sprites/PNGs/No shadow/1x")
+pawn_black_path = os.path.join(sprite_dir, "b_pawn_1x_ns.png")
+rook_black_path = os.path.join(sprite_dir, "b_rook_1x_ns.png")
+knight_black_path = os.path.join(sprite_dir, "b_knight_1x_ns.png")
+bishop_black_path = os.path.join(sprite_dir, "b_bishop_1x_ns.png")
+queen_black_path = os.path.join(sprite_dir, "b_queen_1x_ns.png")
+king_black_path = os.path.join(sprite_dir, "b_king_1x_ns.png")
+
+pawn_black = pygame.image.load(pawn_black_path)
+rook_black = pygame.image.load(rook_black_path)
+knight_black = pygame.image.load(knight_black_path)
+bishop_black = pygame.image.load(bishop_black_path)
+queen_black = pygame.image.load(queen_black_path)
+king_black = pygame.image.load(king_black_path)
 
 pawn_black = pygame.transform.scale(pawn_black, (SQSIZE, SQSIZE))
 rook_black = pygame.transform.scale(rook_black, (SQSIZE, SQSIZE))
@@ -19,12 +28,20 @@ bishop_black = pygame.transform.scale(bishop_black, (SQSIZE, SQSIZE))
 queen_black = pygame.transform.scale(queen_black, (SQSIZE, SQSIZE))
 king_black = pygame.transform.scale(king_black, (SQSIZE, SQSIZE))
 
-pawn_white = pygame.image.load("sprites/PNGs/No shadow/1x/w_pawn_1x_ns.png")
-rook_white = pygame.image.load("sprites/PNGs/No shadow/1x/w_rook_1x_ns.png")
-knight_white = pygame.image.load("sprites/PNGs/No shadow/1x/w_knight_1x_ns.png")
-bishop_white = pygame.image.load("sprites/PNGs/No shadow/1x/w_bishop_1x_ns.png")
-queen_white = pygame.image.load("sprites/PNGs/No shadow/1x/w_queen_1x_ns.png")
-king_white = pygame.image.load("sprites/PNGs/No shadow/1x/w_king_1x_ns.png")
+sprite_dir = os.path.join(os.path.dirname(__file__), "sprites/PNGs/No shadow/1x")
+pawn_white_path = os.path.join(sprite_dir, "w_pawn_1x_ns.png")
+rook_white_path = os.path.join(sprite_dir, "w_rook_1x_ns.png")
+knight_white_path = os.path.join(sprite_dir, "w_knight_1x_ns.png")
+bishop_white_path = os.path.join(sprite_dir, "w_bishop_1x_ns.png")
+queen_white_path = os.path.join(sprite_dir, "w_queen_1x_ns.png")
+king_white_path = os.path.join(sprite_dir, "w_king_1x_ns.png")
+
+pawn_white = pygame.image.load(pawn_white_path)
+rook_white = pygame.image.load(rook_white_path)
+knight_white = pygame.image.load(knight_white_path)
+bishop_white = pygame.image.load(bishop_white_path)
+queen_white = pygame.image.load(queen_white_path)
+king_white = pygame.image.load(king_white_path)
 
 pawn_white = pygame.transform.scale(pawn_white, (SQSIZE, SQSIZE))
 rook_white = pygame.transform.scale(rook_white, (SQSIZE, SQSIZE))
@@ -58,7 +75,8 @@ class Game:
             self.dragInit = True
             self.dragPiece = None
             self.valid_moves = None
-            self.conn = sqlite3.connect('users.db')
+            db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+            self.conn = sqlite3.connect(db_path)
             c = self.conn.cursor()
             # Retrieve the white and black colors from the database for this user
             c.execute("SELECT white, black FROM user_stats WHERE username = ?", (username,))

@@ -59,15 +59,15 @@ def make_move(start, end, board, surface, promote):
     move = chess.Move(start, end)
     #promoMove used to check if a promotion move is needed
     promoMove = chess.Move(from_square=start, to_square=end, promotion=chess.QUEEN)
-
     #if this is a move sent from opponent with a promotion
     if(promote is not None):
         if(promote>1):
             print(promote)
-            promoMove = chess.Move(from_square=start, to_square=end, promotion=chess_pieces[promote-2])
-            if promoMove in board.legal_moves:
-                board.push(promoMove)
-                return 1
+            if(promote<6):
+                promoMove = chess.Move(from_square=start, to_square=end, promotion=chess_pieces[promote-2])
+                if promoMove in board.legal_moves:
+                    board.push(promoMove)
+                    return 1
     
     if move in board.legal_moves:
         board.push(move)
