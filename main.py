@@ -15,6 +15,7 @@ import speech_recognition as sr
 from pocketsphinx import LiveSpeech, get_model_path
 import pyaudio
 import hashlib
+import requests
 
 from const import *
 from game import *
@@ -72,6 +73,9 @@ class Main:
         letter_words = ["a","b","c","d","e","f","g","h"]
         username_active = 0
         button = 0
+        response = requests.get('https://api.ipify.org?format=json')
+        my_ip = response.json()['ip']
+        print(my_ip)
         while True:
             if(curr_window=="login"):
                 login.show_screen(screen,username,password)
@@ -252,7 +256,7 @@ class Main:
                     s = socket.socket(socket.AF_INET,
                                     socket.SOCK_STREAM)
                     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    s.bind((ip, port))
+                    s.bind(('0.0.0.0', port))
                     #allows one client as opponent
                     s.listen(1)
 

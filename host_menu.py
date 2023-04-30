@@ -43,7 +43,7 @@ class HostMenu:
         
         text_surface = FEN_font.render(FEN, True, (0, 0, 0))
 
-        ip_surface = font.render(host_ip, True, BLACK)
+        ip_surface = font.render("Local Ip: "+str(host_ip), True, BLACK)
         surface.blit(ip_surface, (10, 10))  #host can see their ip in the top left
         
         if(client_joined):
