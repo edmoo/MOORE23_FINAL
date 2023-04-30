@@ -11,6 +11,7 @@ def initialise_board(fenCode = ""):
     print("returning board")
     return board
 
+#makes sure fen is valid, otherwise return false
 def validate_fen(s):
     a = [0]*12
     n = x = 0
@@ -30,6 +31,7 @@ def validate_fen(s):
 
     valid = n == 71 and x == 7 and all(x <= 8 for x in a[:6])
     return valid
+
 #converts the python chess board to a fencode, which then is converted to a matrix
 def board_toMatrix(fenCode):
     board = []
@@ -53,6 +55,7 @@ def board_toMatrix(fenCode):
         board.append( tempRow )
     return board
 
+#makes a move on the python chess board
 def make_move(start, end, board, surface, promote):
     chess_pieces = [chess.ROOK,chess.KNIGHT,chess.BISHOP,chess.QUEEN]
     chess_strings = ["R","K","B","Q"]
@@ -79,35 +82,34 @@ def make_move(start, end, board, surface, promote):
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
 
-        # Define the chess pieces (excluding pawns) as a list of strings
+        #define the chess pieces (excluding pawns) as a list of strings
 
-        # Create a font object for the text
+        #create a font object for the text
         font = pygame.font.SysFont(None, 30)
 
-        # Create a surface object for the text
+        #create a surface object for the text
         text_surface = font.render(", ".join(chess_strings), True, WHITE)
 
-        # Get the dimensions of the text surface
+        #get the dimensions of the text surface
         text_width = text_surface.get_width()
         text_height = text_surface.get_height()
 
-        # Create a surface object for the rectangle
+        #create a surface object for the rectangle
         rect_surface = pygame.Surface((text_width + 20, text_height + 20))
         rect_surface.fill(BLACK)
 
-        # Blit the text surface onto the rectangle surface
+        #blit the text surface onto the rectangle surface
         rect_surface.blit(text_surface, (10, 10))
         mouse = pygame.mouse.get_pos()
         rect_x = mouse[0]
         rect_y = mouse[1]
 
-        # Make sure the rectangle doesn't go off screen
+        #dont go offscreen
         if rect_x + text_width + 20 > WIDTH:
             rect_x = WIDTH - text_width - 20
         if rect_y + text_height + 20 > HEIGHT:
             rect_y = HEIGHT - text_height - 20
 
-        # Blit the rectangle surface onto the given surface at position (rect_x, rect_y)
         surface.blit(rect_surface, (rect_x, rect_y))
         pygame.display.flip()
 

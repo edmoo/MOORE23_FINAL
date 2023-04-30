@@ -2,10 +2,8 @@ import pygame
 from const import *
 pygame.font.init()
 
-# Create the login button
 back_button = pygame.Rect(WIDTH // 4, HEIGHT // 1.5, WIDTH // 2, 32)
 
-# Create the username and password fields
 host_field = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
 start_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
 
@@ -18,7 +16,7 @@ class HostMenu:
     def show_screen(self, surface, FEN, host_ip, client_joined):
         font_path = os.path.join(os.path.dirname(__file__), "OpenDyslexic-Regular.otf")
         FEN_font = pygame.font.Font(font_path, 12)
-        # Clear the surface
+        #clear the surface
         surface.fill(COLOUR_ONE)
         text_surface = FEN_font.render(FEN, True, (0, 0, 0))
 

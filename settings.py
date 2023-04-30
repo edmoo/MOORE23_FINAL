@@ -5,7 +5,7 @@ from const import *
 import pygame.gfxdraw
 from math import atan2, degrees, hypot
 
-# Define the size and position of each UI element
+#define the size and position of each UI element
 wins_label_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
 losses_label_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3 + 40, WIDTH // 2, 32)
 draws_label_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3 + 80, WIDTH // 2, 32)

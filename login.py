@@ -1,14 +1,11 @@
 import pygame
 from const import *
 
-# Create the login button
 login_button = pygame.Rect(WIDTH // 4, HEIGHT // 1.5, WIDTH // 2, 32)
 reg_button = pygame.Rect(WIDTH // 4, login_button.bottom + 10, WIDTH // 2, 32)
 
 title_font = pygame.font.SysFont("Oswald", 120)
 
-
-# Create the username and password fields
 username_field = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, 32)
 password_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
 passwordAUTH_field = pygame.Rect(WIDTH // 4, HEIGHT // 1, WIDTH // 2, 32)
@@ -16,7 +13,6 @@ passwordAUTH_field = pygame.Rect(WIDTH // 4, HEIGHT // 1, WIDTH // 2, 32)
 confirm_password_field = pygame.Rect(WIDTH // 4, HEIGHT // 2 + 50, WIDTH // 2, 32)
 email_field = pygame.Rect(WIDTH // 4, HEIGHT // 2 + 100, WIDTH // 2, 32)
 
-# Create the username, password, password authentication, and email fields
 REGusername_field = pygame.Rect(WIDTH // 4, HEIGHT // 5, WIDTH // 2, 32)
 REGpassword_field = pygame.Rect(WIDTH // 4, HEIGHT // 5 + 50, WIDTH // 2, 32)
 REGpassAuth_field = pygame.Rect(WIDTH // 4, HEIGHT // 5 + 100, WIDTH // 2, 32)
@@ -79,32 +75,32 @@ class Login:
         #clear the surface
         surface.fill(COLOUR_ONE)
 
-        # Draw the username field
+        #draw the username field
         pygame.draw.rect(surface, COLOUR_TWO, REGusername_field, 2)
         username_text = font.render("1.Username:", True, BLACK)
         surface.blit(username_text, (WIDTH // 4 - username_text.get_width() - 16, HEIGHT // 5))
 
-        # Draw the password field
+        #draw the password field
         pygame.draw.rect(surface, COLOUR_TWO, REGpassword_field, 2)
         password_text = font.render("2.Password:", True, BLACK)
         surface.blit(password_text, (WIDTH // 4 - password_text.get_width() - 16, HEIGHT // 5 + 50))
 
-        # Draw the password authentication field
+        #draw the password authentication field
         pygame.draw.rect(surface, COLOUR_TWO, REGpassAuth_field, 2)
         passAuth_text = font.render("3.Confirm Password:", True, BLACK)
         surface.blit(passAuth_text, (WIDTH // 4 - passAuth_text.get_width() - 16, HEIGHT // 5 + 100))
 
-        # Draw the email field
+        #draw the email field
         pygame.draw.rect(surface, COLOUR_TWO, REGemail_field, 2)
         email_text = font.render("4.Email:", True, BLACK)
         surface.blit(email_text, (WIDTH // 4 - email_text.get_width() - 16, HEIGHT // 5 + 150))
 
-        # Draw the register button
+        #draw the register button
         pygame.draw.rect(surface, COLOUR_TWO, register_button)
         register_text = font.render("5.Register", True, BLACK)
         surface.blit(register_text, (WIDTH // 2 - register_text.get_width() // 2, HEIGHT // 5 + 210))
 
-        # Render the input text
+        #render the input text
         username_surface = base_font.render(username, True, BLACK)
         pass_surface = base_font.render("*" * len(password), True, BLACK)
         passAuth_surface = base_font.render("*" * len(passAuth), True, BLACK)
@@ -113,7 +109,7 @@ class Login:
         pygame.draw.rect(surface, COLOUR_TWO, back_rect)
         surface.blit(back_text, (back_rect.x + 15, back_rect.y + 10))
 
-        # Blit the input text to the surface
+        #blit the input text to the surface
         surface.blit(username_surface, (REGusername_field.x + 5, REGusername_field.y + 5))
         surface.blit(pass_surface, (REGpassword_field.x + 5, REGpassword_field.y + 5))
         surface.blit(passAuth_surface, (REGpassAuth_field.x + 5, REGpassAuth_field.y + 5))

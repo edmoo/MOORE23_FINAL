@@ -1,11 +1,11 @@
 import pygame
 from const import *
 
-# Create the login button
+#create the login button
 continue_button = pygame.Rect(WIDTH // 4, HEIGHT // 1.5, WIDTH // 2, 32)
 toggle_button = pygame.Rect(WIDTH // 4, HEIGHT // 1.33, WIDTH //2, 32)
 
-# Create the username and password fields
+#create the username and password fields
 stats_field = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 32)
 title_font = pygame.font.SysFont("Oswald", 120)
 

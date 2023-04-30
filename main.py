@@ -296,16 +296,16 @@ class Main:
                             if event.key == pygame.K_BACKSPACE:
                                 FEN = FEN[:-1]
                             elif event.key == pygame.K_v and pygame.key.get_mods() & pygame.KMOD_CTRL:
-                                # Check if CTRL+V is pressed
+                                #check if CTRL+V is pressed
                                 root = tk.Tk()
                                 root.withdraw()
                                 clipboard_text = root.clipboard_get()
                                 if clipboard_text and len(clipboard_text) <= 90:
-                                    # If clipboard has text, append it to REN
+                                    #if clipboard has text, append it to REN
                                     FEN += clipboard_text
                                     FEN = FEN.strip()
                             elif event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_CTRL:
-                                # Check if CTRL+Z is pressed
+                                #check if CTRL+Z is pressed
                                 FEN = ''
                             elif(len(FEN) < 35 and event.unicode in valid_characters):
                                 FEN += event.unicode
@@ -393,7 +393,7 @@ class Main:
                                         c.send(moveArr.encode())
                                         moveSay = "White moves "+int_to_square(move_start)+" to "+int_to_square(move_end)                
                                         def say_thread():
-                                            # Check if the engine is already running a loop
+                                            #check if the engine is already running a loop
                                             if not engine._inLoop:
                                                 engine.say(moveSay)
                                                 engine.runAndWait()
@@ -418,7 +418,7 @@ class Main:
                                         pygame.display.set_caption("Game over")
                                         curr_window = "endScreen" 
                                         conn.commit()
-                                        # Close the cursor and database connection
+                                        #close the cursor and database connection
                                         curr.close()
                                         conn.close()
                                 move_start = -1

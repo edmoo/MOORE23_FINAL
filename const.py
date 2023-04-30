@@ -24,7 +24,7 @@ WHITE = (255,255,255)
 COLOUR_BLACK = (0,0,0)
 COLOUR_WHITE = (255,255,255)
 
-# Create the font
+#create font
 font_path = os.path.join(os.path.dirname(__file__), "OpenDyslexic-Regular.otf")
 font = pygame.font.Font(font_path, 24)
 base_font = pygame.font.Font(None, 32)

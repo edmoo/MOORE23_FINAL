@@ -12,7 +12,7 @@ class JoinLobby:
 
     def show_screen(self, surface):
 
-        # Clear the surface
+        #clear surface
         surface.fill(COLOUR_ONE)
 
         start_text = font.render("Waiting for host to start...", True, BLACK)

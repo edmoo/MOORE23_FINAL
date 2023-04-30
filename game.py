@@ -51,13 +51,13 @@ queen_white = pygame.transform.scale(queen_white, (SQSIZE, SQSIZE))
 king_white = pygame.transform.scale(king_white, (SQSIZE, SQSIZE))
 piece_color = (255, 255, 255)
 
-# Define the position and size of the list box
+#define the position and size of the list box
 LIST_BOX_X = 650
 LIST_BOX_Y = 30
 LIST_BOX_WIDTH = 300
 LIST_BOX_HEIGHT = 300
 
-# Define the position and size of the text area within the list box
+#define the position and size of the text area within the list box
 TEXT_AREA_X = LIST_BOX_X + 10
 TEXT_AREA_Y = LIST_BOX_Y + 10
 TEXT_AREA_WIDTH = LIST_BOX_WIDTH - 20
@@ -78,14 +78,14 @@ class Game:
             db_path = os.path.join(os.path.dirname(__file__), 'users.db')
             self.conn = sqlite3.connect(db_path)
             c = self.conn.cursor()
-            # Retrieve the white and black colors from the database for this user
+            #retrieve the white and black colors from the database for this user
             c.execute("SELECT white, black FROM user_stats WHERE username = ?", (username,))
             row = c.fetchone()
             if row is not None:
                 self.white = ast.literal_eval(row[0])
                 self.black = ast.literal_eval(row[1])
             else:
-                # If no data was found in the database for this user, set default values
+                #if no data, set default values
                 self.white = (255, 255, 255)
                 self.black = (0, 0, 0)
     
@@ -230,10 +230,10 @@ class Game:
         pygame.draw.rect(surface, COLOUR_TWO, surr_rect)
         surface.blit(surr_text,(button_x,button_y))
 
-        # Clear the list box
+        #clear the list box
         pygame.draw.rect(surface, (255, 255, 255), (LIST_BOX_X, LIST_BOX_Y, LIST_BOX_WIDTH, LIST_BOX_HEIGHT))
 
-        # Draw the text in the list boxes
+        #draw the text in the list boxes
         box_height = LIST_BOX_HEIGHT // 10
         for i, move in enumerate(prevMoves):
             text = f"{move[3]} - {move[1]} to {move[2]}"
